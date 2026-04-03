@@ -21,6 +21,20 @@ const monthMap = {
     'ก.ค.': 7, 'ส.ค.': 8, 'ก.ย.': 9, 'ต.ค.': 10, 'พ.ย.': 11, 'ธ.ค.': 12
 };
 
+// Short month names for printing (Thai) and a helper to format dates using Buddhist year
+const thaiMonthsShort = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
+
+const formatThaiDateTime = (date) => {
+    if (!date || !(date instanceof Date)) return '';
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = thaiMonthsShort[date.getMonth()] || '';
+    const yearBE = date.getFullYear() + 543; // Buddhist Era
+    const hh = String(date.getHours()).padStart(2, '0');
+    const mm = String(date.getMinutes()).padStart(2, '0');
+    const ss = String(date.getSeconds()).padStart(2, '0');
+    return `${day} ${month} ${yearBE} ${hh}:${mm}:${ss}`;
+};
+
 // Format numbers as Thai Baht currency
 const formatCurrency = (number) => {
     return new Intl.NumberFormat('th-TH', {
@@ -110,6 +124,258 @@ const init = async () => {
         await fetchData();
     }
 };
+
+// Keep last opened details items for quick re-render/filtering
+let lastDetailsItems = [];
+
+// Populate grouped summary table (One row per creditor)
+function populateGroupedDetailsTable(items = []) {
+    const detailsTableBody = document.getElementById('detailsTableBody');
+    const detailsTableFooter = document.getElementById('detailsTableFooter');
+    const table = detailsTableBody ? detailsTableBody.closest('table') : null;
+    const detailsTableHeader = table ? table.querySelector('thead') : null;
+    
+    // Change Table Header for Summary View
+    if (detailsTableHeader) {
+        detailsTableHeader.innerHTML = `
+            <tr>
+                <th style="text-align: left; width: 45%;">ชื่อเจ้าหนี้ (Creditor Name)</th>
+                <th style="text-align: center; width: 25%;">จำนวนรายการ (Count)</th>
+                <th style="text-align: right; width: 30%;">ยอดเงินรวม (Sum Total)</th>
+            </tr>
+        `;
+    }
+
+    detailsTableBody.innerHTML = '';
+    detailsTableFooter.innerHTML = '';
+
+    if (!items || items.length === 0) {
+        detailsTableBody.innerHTML = `<tr><td colspan="3" style="text-align:center; padding: 32px; color: var(--text-muted);">ไม่มีข้อมูล</td></tr>`;
+        return;
+    }
+
+    // Aggregate by creditor
+    const groups = {};
+    items.forEach(it => {
+        const key = it.creditor || 'ไม่ระบุชื่อ';
+        const amt = Number(it.amount) || 0;
+        if (!groups[key]) groups[key] = { total: 0, count: 0 };
+        groups[key].total += amt;
+        groups[key].count += 1;
+    });
+
+    const sortedGroups = Object.entries(groups)
+        .map(([name, data]) => ({ name, ...data }))
+        .sort((a, b) => b.total - a.total);
+
+    let grandTotal = 0;
+    sortedGroups.forEach(g => {
+        grandTotal += g.total;
+        const tr = document.createElement('tr');
+        tr.className = 'summary-row-clickable';
+        tr.innerHTML = `
+            <td style="font-weight: 700; color: #fff;">${g.name}</td>
+            <td style="text-align: center; color: var(--text-muted);">${g.count} รายการ</td>
+            <td style="text-align: right; color: var(--color-total); font-weight: 800; font-size: 15px;">${formatCurrency(g.total)}</td>
+        `;
+        // Drill-down: Click row to see details for this creditor
+        tr.addEventListener('click', () => {
+            const creditorItems = items.filter(it => (it.creditor || 'ไม่ระบุชื่อ') === g.name);
+            const btnViewItems = document.getElementById('btnViewItems');
+            const btnViewGrouped = document.getElementById('btnViewGrouped');
+            if (btnViewItems) btnViewItems.click(); // Switch back to items view
+            populateDetailsTable(creditorItems);
+        });
+        detailsTableBody.appendChild(tr);
+    });
+
+    // Total footer
+    const totalTr = document.createElement('tr');
+    totalTr.className = 'total-row-summary';
+    totalTr.innerHTML = `
+        <td colspan="2" class="total-label">ยอดยกมาทั้งหมด (${sortedGroups.length} ราย):</td>
+        <td class="total-amount-val">${formatCurrency(grandTotal)}</td>
+    `;
+    detailsTableFooter.appendChild(totalTr);
+}
+
+// Populate details table (used by full-list and group-click)
+function populateDetailsTable(items = []) {
+    const detailsTableBody = document.getElementById('detailsTableBody');
+    const detailsTableFooter = document.getElementById('detailsTableFooter');
+    const table = detailsTableBody ? detailsTableBody.closest('table') : null;
+    const detailsTableHeader = table ? table.querySelector('thead') : null;
+
+    // Restore Original Table Header for Detailed View
+    if (detailsTableHeader) {
+        detailsTableHeader.innerHTML = `
+            <tr>
+                <th style="text-align: left;">เลขที่เอกสาร</th>
+                <th style="text-align: left;">เจ้าหนี้</th>
+                <th style="text-align: left;">รายละเอียด</th>
+                <th style="text-align: left;">หมวดหมู่</th>
+                <th style="text-align: left;">วันครบ<br>กำหนด</th>
+                <th style="text-align: right;">จำนวนเงิน</th>
+            </tr>
+        `;
+    }
+
+    detailsTableBody.innerHTML = '';
+    detailsTableFooter.innerHTML = '';
+
+    let totalSum = 0;
+    if (!items || items.length === 0) {
+        detailsTableBody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding: 32px; color: var(--text-muted);">ไม่มีข้อมูลสำหรับตัวกรองนี้</td></tr>`;
+    } else {
+        items.forEach(item => {
+            const amount = Number(item.amount) || 0;
+            totalSum += amount;
+
+            const statusStr = (item.status || '').toString().trim();
+            let statusColor = 'var(--text-muted)';
+            if (statusStr.includes('เกินกำหนด')) statusColor = '#ef4444';
+            else if (statusStr.includes('ตรงดิว')) statusColor = '#10b981';
+            else if (statusStr.includes('ยังไม่ถึงกำหนด')) statusColor = '#3b82f6';
+            else if (statusStr.includes('จ่ายก่อนกำหนด')) statusColor = '#a855f7';
+
+            const tr = document.createElement('tr');
+            const dueDateStr = [item.dayDue, item.monthDue, item.yearDue].filter(Boolean).join(' ') || '-';
+            tr.innerHTML = `
+                <td style="font-weight: 500; color: var(--accent-primary); font-family: monospace;">${item.docNo || '-'}</td>
+                <td style="font-weight: 500;">${item.creditor || '-'}</td>
+                <td style="color: var(--text-muted);">${item.description || '-'}</td>
+                <td>
+                    <span class="cat-pill" style="background: rgba(255,255,255,0.06); padding: 4px 8px; border-radius: 4px; font-size: 12px; white-space: nowrap;">${item.category || '-'}</span>
+                </td>
+                <td class="due-date-cell">${dueDateStr}</td>
+                <td style="text-align: right; color: var(--color-total); font-weight: 600; white-space: nowrap;">${formatCurrency(amount)}</td>
+            `;
+            detailsTableBody.appendChild(tr);
+        });
+    }
+
+    // Total footer
+    const totalTr = document.createElement('tr');
+    totalTr.className = 'total-row-summary';
+    totalTr.innerHTML = `
+        <td colspan="5" class="total-label">ยอดรวมทั้งหมด (Total):</td>
+        <td class="total-amount-val">${formatCurrency(totalSum)}</td>
+    `;
+    detailsTableFooter.appendChild(totalTr);
+
+    // shrink status text to fit after rendering
+    window.requestAnimationFrame(() => shrinkStatusTextToFit(detailsTableBody));
+}
+
+function renderGroupSummary(items = []) {
+    const bar = document.getElementById('groupSummaryBar');
+    if (!bar) return;
+    bar.innerHTML = '';
+    if (!items || items.length === 0) { bar.hidden = true; return; }
+
+    // aggregate by creditor
+    const groups = {};
+    items.forEach(it => {
+        const key = it.creditor || 'ไม่ระบุชื่อ';
+        const amt = Number(it.amount) || 0;
+        if (!groups[key]) groups[key] = { total: 0, count: 0, items: [] };
+        groups[key].total += amt;
+        groups[key].count += 1;
+        groups[key].items.push(it);
+    });
+
+    const arr = Object.entries(groups).map(([name, o]) => ({ name, total: o.total, count: o.count, items: o.items }));
+    arr.sort((a, b) => b.total - a.total);
+
+    // Also render a print-friendly summary table (used for PDF / first page)
+    renderPrintGroupTable(arr);
+
+    // Add 'show all' card
+    const allBtn = document.createElement('button');
+    allBtn.type = 'button'; allBtn.className = 'group-card group-card-all';
+    allBtn.innerHTML = `<div class="group-card-name">แสดงทั้งหมด</div><div class="group-card-meta"><span class="group-count">${items.length} รายการ</span><span class="group-total">${formatCurrency(items.reduce((s, i) => s + (Number(i.amount) || 0), 0))}</span></div>`;
+    allBtn.addEventListener('click', () => {
+        document.querySelectorAll('.group-card').forEach(c => c.classList.remove('is-selected'));
+        populateDetailsTable(lastDetailsItems);
+    });
+    bar.appendChild(allBtn);
+
+    arr.forEach(g => {
+        const card = document.createElement('button');
+        card.type = 'button';
+        card.className = 'group-card';
+        card.innerHTML = `<div class="group-card-name">${g.name}</div><div class="group-card-meta"><span class="group-count">${g.count} รายการ</span><span class="group-total">${formatCurrency(g.total)}</span></div>`;
+        card.addEventListener('click', () => {
+            document.querySelectorAll('.group-card').forEach(c => c.classList.remove('is-selected'));
+            card.classList.add('is-selected');
+            populateDetailsTable(g.items);
+        });
+        bar.appendChild(card);
+    });
+
+    bar.hidden = false;
+}
+
+// Render a compact, print-friendly summary table above the full table
+function renderPrintGroupTable(groupsArr = []) {
+    const container = document.getElementById('globalPrintGroupTable');
+    const tbody = document.getElementById('globalPrintGroupTableBody');
+    if (!container || !tbody) return;
+    tbody.innerHTML = '';
+    if (!groupsArr || groupsArr.length === 0) {
+        tbody.innerHTML = '';
+        return;
+    }
+
+    groupsArr.forEach(g => {
+        const tr = document.createElement('tr');
+        const nameTd = document.createElement('td');
+        const countTd = document.createElement('td');
+        const totalTd = document.createElement('td');
+
+        nameTd.textContent = g.name || '-';
+        countTd.textContent = `${g.count} รายการ`;
+        countTd.style.textAlign = 'center';
+        totalTd.textContent = formatCurrency(g.total || 0);
+        totalTd.style.textAlign = 'right';
+
+        tr.appendChild(nameTd);
+        tr.appendChild(countTd);
+        tr.appendChild(totalTd);
+        tbody.appendChild(tr);
+    });
+
+    // Add Grand Total row to tfoot
+    const tfoot = document.getElementById('globalPrintGroupTableFooter');
+    if (tfoot) {
+        tfoot.innerHTML = '';
+        const totalAmount = groupsArr.reduce((sum, g) => sum + (g.total || 0), 0);
+        const totalCount = groupsArr.reduce((sum, g) => sum + (g.count || 0), 0);
+
+        const tr = document.createElement('tr');
+        tr.className = 'total-row-summary';
+
+        const labelTd = document.createElement('td');
+        labelTd.textContent = 'ยอดรวมทั้งหมด';
+        labelTd.style.fontWeight = 'bold';
+        labelTd.style.textAlign = 'left';
+
+        const countTd = document.createElement('td');
+        countTd.textContent = `${totalCount} รายการ`;
+        countTd.style.fontWeight = 'bold';
+        countTd.style.textAlign = 'center';
+
+        const amountTd = document.createElement('td');
+        amountTd.textContent = formatCurrency(totalAmount);
+        amountTd.style.fontWeight = 'bold';
+        amountTd.style.textAlign = 'right';
+
+        tr.appendChild(labelTd);
+        tr.appendChild(countTd);
+        tr.appendChild(amountTd);
+        tfoot.appendChild(tr);
+    }
+}
 
 // Setup Listeners
 const setupEventListeners = () => {
@@ -223,6 +489,29 @@ const setupEventListeners = () => {
             // future: switch search mode
         });
     });
+
+    // Details modal view toggle (items vs grouped) - buttons are present in DOM
+    const btnViewItems = document.getElementById('btnViewItems');
+    const btnViewGrouped = document.getElementById('btnViewGrouped');
+    const groupSummaryBar = document.getElementById('groupSummaryBar');
+    const tableResp = document.querySelector('.table-responsive');
+    if (btnViewItems && btnViewGrouped && groupSummaryBar && tableResp) {
+        btnViewItems.addEventListener('click', () => {
+            btnViewItems.classList.add('is-active');
+            btnViewGrouped.classList.remove('is-active');
+            // Show detailed items table
+            populateDetailsTable(lastDetailsItems);
+            groupSummaryBar.hidden = false;
+        });
+        btnViewGrouped.addEventListener('click', () => {
+            btnViewGrouped.classList.add('is-active');
+            btnViewItems.classList.remove('is-active');
+            // Show grouped summary table
+            populateGroupedDetailsTable(lastDetailsItems);
+            // Optional: Hide horizontal cards if preferred in grouped mode
+            // groupSummaryBar.hidden = true; 
+        });
+    }
 
     const advFilterBtn = document.getElementById('advFilterBtn');
     const advFilterPanel = document.getElementById('advFilterPanel');
@@ -360,49 +649,32 @@ const openDetailsModal = (type) => {
         return (Number(b.amount) || 0) - (Number(a.amount) || 0);
     });
 
-    detailsTableBody.innerHTML = '';
-    const detailsTableFooter = document.getElementById('detailsTableFooter');
-    detailsTableFooter.innerHTML = ''; // Clear previous
+    // Save last items for re-render / group interactions
+    lastDetailsItems = items.slice();
 
-    let totalSum = 0;
-    if (items.length === 0) {
-        detailsTableBody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding: 32px; color: var(--text-muted);">ไม่มีข้อมูลสำหรับตัวกรองนี้</td></tr>`;
-    } else {
-        items.forEach(item => {
-            const amount = Number(item.amount) || 0;
-            totalSum += amount;
-
-            const tr = document.createElement('tr');
-            const dueDateStr = [item.dayDue, item.monthDue, item.yearDue].filter(Boolean).join(' ') || '-';
-            tr.innerHTML = `
-                <td style="font-weight: 500; color: var(--accent-primary); font-family: monospace;">${item.docNo || '-'}</td>
-                <td style="font-weight: 500;">${item.creditor || '-'}</td>
-                <td style="color: var(--text-muted);">${item.description || '-'}</td>
-                <td><span style="background: rgba(255,255,255,0.1); padding: 4px 8px; border-radius: 4px; font-size: 12px; white-space: nowrap;">${item.category || '-'}</span></td>
-                <td style="white-space: nowrap; font-size: 12px; color: var(--text-muted);">${dueDateStr}</td>
-                <td style="text-align: right; color: var(--color-total); font-weight: 600; white-space: nowrap;">${formatCurrency(amount)}</td>
-            `;
-            detailsTableBody.appendChild(tr);
-        });
+    // Reset view toggle to 'Items' by default
+    const btnViewItems = document.getElementById('btnViewItems');
+    const btnViewGrouped = document.getElementById('btnViewGrouped');
+    if (btnViewItems && btnViewGrouped) {
+        btnViewItems.classList.add('is-active');
+        btnViewGrouped.classList.remove('is-active');
     }
 
-    // Add Total Summary Row to tfoot
-    const totalTr = document.createElement('tr');
-    totalTr.className = 'total-row-summary';
-    totalTr.innerHTML = `
-        <td colspan="5" class="total-label">ยอดรวมทั้งหมด (Total):</td>
-        <td class="total-amount-val">${formatCurrency(totalSum)}</td>
-    `;
-    detailsTableFooter.appendChild(totalTr);
+    // Render grouped summary and full table
+    renderGroupSummary(items);
+    populateDetailsTable(items);
 
     // Update Title with Total Sum for immediate clarity (modal shows total,
     // but the print header should not include the total amount)
+    const totalSum = items.reduce((s, it) => s + (Number(it.amount) || 0), 0);
     const finalTitle = `ประเภทรายงาน: ${config.text} (ยอดรวมทั้งหมด: ${formatCurrency(totalSum)})`;
     detailsModalTitle.innerText = finalTitle;
-    const printHeader = document.getElementById('printReportHeader');
+    const printHeader = document.getElementById('printReportHeaderGlobal');
     if (printHeader) printHeader.innerText = `ประเภทรายงาน: ${config.text}`;
 
     detailsModal.classList.remove('hidden');
+    // After modal is visible, shrink any long status texts to fit their cells
+    window.requestAnimationFrame(() => shrinkStatusTextToFit(detailsTableBody));
 };
 
 // Initializing empty charts
@@ -1058,12 +1330,15 @@ const openDateDetailModal = (dateKey) => {
             else if (statusStr.includes('จ่ายก่อนกำหนด')) statusColor = '#a855f7';
 
             const tr = document.createElement('tr');
+            const dueDateStr = [item.dayDue, item.monthDue, item.yearDue].filter(Boolean).join(' ') || '-';
             tr.innerHTML = `
                 <td style="font-weight: 500; color: var(--accent-primary); font-family: monospace;">${item.docNo || '-'}</td>
                 <td style="font-weight: 500;">${item.creditor || '-'}</td>
                 <td style="color: var(--text-muted);">${item.description || '-'}</td>
-                <td><span style="background: rgba(255,255,255,0.1); padding: 4px 8px; border-radius: 4px; font-size: 12px; white-space: nowrap;">${item.category || '-'}</span></td>
-                <td style="white-space: nowrap;"><span style="color: ${statusColor}; font-size: 12px; font-weight: 500;">${statusStr || '-'}</span></td>
+                <td>
+                    <span class="cat-pill" style="background: rgba(255,255,255,0.06); padding: 4px 8px; border-radius: 4px; font-size: 12px; white-space: nowrap;">${item.category || '-'}</span>
+                </td>
+                <td class="due-date-cell">${dueDateStr}</td>
                 <td style="text-align: right; color: var(--color-total); font-weight: 600; white-space: nowrap;">${formatCurrency(amount)}</td>
             `;
             tbody.appendChild(tr);
@@ -1083,7 +1358,7 @@ const openDateDetailModal = (dateKey) => {
     // present only the document/date without the total amount)
     const finalTitle = `รายละเอียดรายการ — วันที่ ${dateKey} (ยอดรวม: ${formatCurrency(totalSum)})`;
     title.innerText = finalTitle;
-    const printHeader = document.getElementById('printDateReportHeader');
+    const printHeader = document.getElementById('printReportHeaderGlobal');
     if (printHeader) printHeader.innerText = `เอกสารจ่ายประจำวันที่: ${dateKey}`;
 
     modal.classList.remove('hidden');
@@ -1093,14 +1368,15 @@ const openDateDetailModal = (dateKey) => {
 const exportDatePDF = () => {
     const now = new Date();
     const docId = `PAY-${now.getTime().toString().slice(-6)}`;
-    const dateStr = now.toLocaleString('th-TH');
+    const dateStr = formatThaiDateTime(now);
 
-    const printDocId = document.getElementById('printDateDocId');
-    const printIssueDate = document.getElementById('printDateIssueDate');
+    const printDocId = document.getElementById('printDocIdGlobal');
+    const printIssueDate = document.getElementById('printIssueDateGlobal');
 
     if (printDocId) printDocId.innerText = docId;
     if (printIssueDate) printIssueDate.innerText = dateStr;
 
+    // Use native print for better multi-page support and Thai fonts
     window.print();
 };
 
@@ -1112,14 +1388,81 @@ const exportToPDF = () => {
     // บันทึกข้อมูลเลขที่เอกสารและวันที่
     const now = new Date();
     const docId = `RT-${now.getTime().toString().slice(-6)}`;
-    const dateStr = now.toLocaleString('th-TH');
+    const dateStr = formatThaiDateTime(now);
 
     // อัปเดตข้อมูลลงในธาตุ HTML สำหรับหน้าพิมพ์
-    const printDocId = document.getElementById('printDocId');
-    const printIssueDate = document.getElementById('printIssueDate');
+    const printDocId = document.getElementById('printDocIdGlobal');
+    const printIssueDate = document.getElementById('printIssueDateGlobal');
 
     if (printDocId) printDocId.innerText = docId;
     if (printIssueDate) printIssueDate.innerText = dateStr;
 
+    // Native print is generally more reliable for multi-page reports
     window.print();
 };
+
+/** 
+ * High Quality PDF Export (Using html2pdf)
+ * ถ้าต้องการใช้ตัวนี้ ให้เปลี่ยน window.print() ด้านบนเป็น runHtml2Pdf('.print-report-container')
+ */
+function runHtml2Pdf(selector) {
+    const element = document.querySelector(selector);
+    if (!element) return;
+
+    const opt = {
+        margin: [10, 10, 15, 10],
+        filename: `Expense_Report_${new Date().getTime()}.pdf`,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2, useCORS: true },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    };
+    html2pdf().set(opt).from(element).save();
+}
+
+/* ========== Shrink status text to fit logic ========== */
+function shrinkStatusTextToFit(root = document) {
+    try {
+        const container = root || document;
+        const els = container.querySelectorAll('.status-text');
+        els.forEach(el => {
+            // reset to computed baseline
+            el.style.fontSize = '';
+            // get computed base font size
+            const computed = window.getComputedStyle(el);
+            let base = parseFloat(computed.fontSize) || 12;
+            const minFont = 9; // minimum readable font size
+            let size = base;
+
+            // ensure single-line measurement
+            el.style.whiteSpace = 'nowrap';
+            el.style.overflow = 'hidden';
+
+            // if the element is not in the layout (display:none), skip
+            if (el.offsetParent === null) return;
+
+            // shrink step until it fits or reaches minFont
+            while (el.scrollWidth > el.clientWidth && size > minFont) {
+                size = Math.max(minFont, size - 0.5);
+                el.style.fontSize = size + 'px';
+            }
+        });
+    } catch (err) {
+        console.warn('shrinkStatusTextToFit error', err);
+    }
+}
+
+// Debounced resize handler
+let __shrinkResizeTimer = null;
+window.addEventListener('resize', () => {
+    clearTimeout(__shrinkResizeTimer);
+    __shrinkResizeTimer = setTimeout(() => shrinkStatusTextToFit(), 160);
+});
+
+// Before printing, clear inline font sizes so print CSS can wrap naturally.
+window.addEventListener('beforeprint', () => {
+    document.querySelectorAll('.status-text').forEach(el => el.style.fontSize = '');
+});
+window.addEventListener('afterprint', () => {
+    // restore shrink after printing
+    setTimeout(() => shrinkStatusTextToFit(), 80);
+});

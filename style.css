@@ -28,11 +28,11 @@
     --brand-matte: #0B0E14;
     --brand-gold: #D4AF37;
     --brand-ice: #F6FBFF;
-    --glass-bg-adv: rgba(255,255,255,0.03);
-    --glass-border-adv: rgba(255,255,255,0.06);
-    --accent-gold-glow: rgba(212,175,55,0.12);
+    --glass-bg-adv: rgba(255, 255, 255, 0.03);
+    --glass-border-adv: rgba(255, 255, 255, 0.06);
+    --accent-gold-glow: rgba(212, 175, 55, 0.12);
     --r-pill: 18px;
-    --shadow-studio: 0 10px 30px rgba(2,8,20,0.6);
+    --shadow-studio: 0 10px 30px rgba(2, 8, 20, 0.6);
 }
 
 * {
@@ -114,15 +114,16 @@ h3 {
 .dashboard-container {
     max-width: 1400px;
     margin: 0 auto;
-    padding: 24px;
+    padding: 16px 20px;
 }
 
 /* Header & Filters */
 .top-nav {
     display: flex;
-    justify-content: space-between;
+    flex-direction: column;
     align-items: center;
-    margin-bottom: 32px;
+    gap: 16px;
+    margin-bottom: 24px;
     padding: 20px;
     background: var(--bg-card);
     backdrop-filter: blur(20px);
@@ -170,7 +171,8 @@ h3 {
 .logo {
     display: flex;
     align-items: center;
-    gap: 14px;
+    gap: 12px;
+    margin-bottom: 8px;
     flex-shrink: 0;
 }
 
@@ -193,10 +195,11 @@ h3 {
 
 .filter-section {
     display: flex;
-    align-items: center;
-    gap: clamp(8px, 2vw, 16px);
     flex-wrap: wrap;
-    justify-content: flex-end;
+    gap: 16px;
+    width: 100%;
+    align-items: center;
+    justify-content: center;
 }
 
 .filter-group {
@@ -215,7 +218,9 @@ h3 {
 .filter-section .filter-group input {
     padding: 8px 12px;
     border-radius: 10px;
-    font-size: 13px;
+    font-size: 13.5px;
+    line-height: 1.4;
+    min-width: 110px;
 }
 
 select {
@@ -259,13 +264,13 @@ select option {
 .search-box {
     display: flex;
     align-items: center;
-    gap: 10px;
-    background: linear-gradient(90deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+    gap: 8px;
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.01));
     border: 1px solid var(--border-color);
-    padding: 8px 10px;
+    padding: 6px 10px;
     border-radius: 12px;
-    min-width: 220px;
-    max-width: 380px;
+    min-width: 200px;
+    max-width: 360px;
     transition: box-shadow 0.2s ease, transform 0.15s ease, border-color 0.15s ease;
     backdrop-filter: blur(6px);
 }
@@ -293,7 +298,7 @@ select option {
 }
 
 .search-input::placeholder {
-    color: rgba(255,255,255,0.35);
+    color: rgba(255, 255, 255, 0.35);
 }
 
 .search-clear {
@@ -322,31 +327,63 @@ select option {
 }
 
 @media (max-width: 760px) {
-    .search-box { max-width: 240px; min-width: 140px; }
-    .filter-section { gap: 10px; }
+    .search-box {
+        max-width: 240px;
+        min-width: 140px;
+    }
+
+    .filter-section {
+        gap: 10px;
+    }
 }
 
 /* Header search specific styling for prominent placement */
-.filter-group.header-search { position: relative; }
+.filter-group.header-search {
+    position: relative;
+}
+
 .filter-group.header-search .search-box {
     min-width: 320px;
     max-width: 520px;
     padding: 10px 14px;
     border-radius: 14px;
-    background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
-    box-shadow: 0 8px 30px rgba(2,8,20,0.55);
-    border: 1px solid rgba(255,255,255,0.06);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.01));
+    box-shadow: 0 8px 30px rgba(2, 8, 20, 0.55);
+    border: 1px solid rgba(255, 255, 255, 0.06);
 }
-.filter-group.header-search .search-icon { color: rgba(255,255,255,0.6); font-size: 18px; }
-.filter-group.header-search .search-input { width: 220px; min-width: 140px; }
-.filter-group.header-search .search-clear { font-size: 14px; }
+
+.filter-group.header-search .search-icon {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 18px;
+}
+
+.filter-group.header-search .search-input {
+    width: 220px;
+    min-width: 140px;
+}
+
+.filter-group.header-search .search-clear {
+    font-size: 14px;
+}
 
 /* Make dropdown width match search box when possible */
-.filter-group.header-search .creditor-dropdown { width: 100%; max-width: 520px; left: 0; }
+.filter-group.header-search .creditor-dropdown {
+    width: 100%;
+    max-width: 520px;
+    left: 0;
+}
 
 /* Chip visual tweaks */
-.selected-chips .chip { background: linear-gradient(90deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01)); border: 1px solid rgba(255,255,255,0.04); padding: 6px 10px; }
-.selected-chips .chip .chip-remove { font-weight: 700; margin-left: 6px; }
+.selected-chips .chip {
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.01));
+    border: 1px solid rgba(255, 255, 255, 0.04);
+    padding: 6px 10px;
+}
+
+.selected-chips .chip .chip-remove {
+    font-weight: 700;
+    margin-left: 6px;
+}
 
 /* Advanced Search & Filter component */
 .adv-search {
@@ -358,51 +395,215 @@ select option {
     gap: 10px;
 }
 
-.adv-search__segmented{
-    display:flex; gap:8px; align-items:center; justify-content:flex-start;
+.adv-search__segmented {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    justify-content: flex-start;
 }
-.seg-btn{
-    background:transparent; color:var(--color-ice); border-radius:999px; padding:8px 12px;
-    border:1px solid rgba(255,255,255,0.03); font-weight:600; font-size:13px; cursor:pointer;
+
+.seg-btn {
+    background: transparent;
+    color: var(--brand-ice);
+    border-radius: 999px;
+    padding: 8px 12px;
+    border: 1px solid rgba(255, 255, 255, 0.03);
+    font-weight: 600;
+    font-size: 13px;
+    cursor: pointer;
     transition: all 160ms ease;
 }
-.seg-btn.is-active{ background:linear-gradient(90deg, rgba(11,31,59,0.92), rgba(12,35,64,0.6)); box-shadow:0 6px 18px rgba(11,31,59,0.45); border:1px solid rgba(212,175,55,0.14); color:var(--color-ice); }
 
-.adv-search__inner{ display:flex; align-items:center; gap:12px; }
-.search-field{
-    display:flex; align-items:center; gap:12px; padding:12px 16px;
-    background: linear-gradient(180deg, var(--glass-bg-adv), rgba(255,255,255,0.01));
-    border-radius: var(--r-pill); border:1px solid var(--glass-border-adv);
-    backdrop-filter: blur(8px); min-width:420px; box-shadow: var(--shadow-studio);
-    position:relative; overflow:hidden;
+.seg-btn.is-active {
+    background: linear-gradient(90deg, rgba(11, 31, 59, 0.92), rgba(12, 35, 64, 0.6));
+    box-shadow: 0 6px 18px rgba(11, 31, 59, 0.45);
+    border: 1px solid rgba(212, 175, 55, 0.14);
+    color: var(--brand-ice);
 }
-.search-field::after{
+
+.adv-search__inner {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.search-field {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    background: linear-gradient(180deg, var(--glass-bg-adv), rgba(255, 255, 255, 0.01));
+    border-radius: var(--r-pill);
+    border: 1px solid var(--glass-border-adv);
+    backdrop-filter: blur(8px);
+    min-width: 420px;
+    box-shadow: var(--shadow-studio);
+    position: relative;
+    overflow: hidden;
+}
+
+.search-field::after {
     /* subtle brushed-metal hint */
-    content: ''; position:absolute; inset:0; pointer-events:none;
-    background-image: repeating-linear-gradient(90deg, rgba(255,255,255,0.01) 0 1px, transparent 1px 6px);
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background-image: repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.01) 0 1px, transparent 1px 6px);
     opacity: 0.08;
 }
-.search-field .icon-search{ display:inline-flex; width:20px; height:20px; color:rgba(255,255,255,0.45); }
-.search-input-adv{ background:transparent; border:0; outline:0; color:var(--color-ice); font-size:14px; width:360px; }
-.search-field:focus-within{ box-shadow: 0 10px 40px var(--accent-gold-glow); border:1px solid rgba(212,175,55,0.18); }
 
-.adv-controls{ display:flex; align-items:center; gap:8px; }
-.btn-filter{ background:transparent; border:0; padding:8px; color:var(--brand-gold); border-radius:10px; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; }
-.btn-filter:focus{ box-shadow:0 6px 20px rgba(212,175,55,0.12); }
-.btn-action{ width:44px;height:44px;border-radius:999px;border:0; background:linear-gradient(135deg,#F3D88E,#D4AF37); box-shadow:0 10px 30px rgba(212,175,55,0.18), inset 0 1px 2px rgba(255,255,255,0.18); display:flex; align-items:center; justify-content:center; cursor:pointer; }
-.btn-action .arrow{ transition: transform 220ms cubic-bezier(.2,.9,.2,1); }
-.btn-action:hover .arrow{ transform: translateX(4px); }
+.search-field .icon-search {
+    display: inline-flex;
+    width: 20px;
+    height: 20px;
+    color: rgba(255, 255, 255, 0.45);
+}
 
-.filter-panel{ position:absolute; top:calc(100% + 12px); left:0; width:420px; background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); border-radius:12px; border:1px solid var(--glass-border-adv); padding:12px; backdrop-filter: blur(12px); box-shadow: 0 14px 40px rgba(2,8,20,0.6); z-index:120; }
-.filter-panel__header{ display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
-.filter-panel__body{ display:flex; flex-direction:column; gap:10px; }
-.filter-row{ display:flex; flex-direction:column; gap:6px; }
-.filter-panel__footer{ display:flex; gap:8px; justify-content:flex-end; margin-top:8px; }
-.btn-apply{ background:linear-gradient(90deg,#E8C77C,#D4AF37); color:#071019; padding:10px 14px; border-radius:10px; border:0; cursor:pointer; }
-.btn-reset{ background:transparent; color:var(--color-ice); padding:10px 12px; border-radius:8px; border:1px solid rgba(255,255,255,0.04); cursor:pointer; }
+.search-input-adv {
+    background: transparent;
+    border: 0;
+    outline: 0;
+    color: var(--brand-ice);
+    font-size: 14px;
+    width: 360px;
+}
 
-@media (max-width:1000px){ .adv-search{ max-width:720px; } .search-input-adv{ width:260px; } }
-@media (max-width:700px){ .adv-search{ max-width:100%; margin:0 12px;} .adv-search__segmented{ display:none; } .search-input-adv{ width:100%; } .filter-panel{ width:100%; left:0; top: calc(100% + 8px);} }
+.search-field:focus-within {
+    box-shadow: 0 10px 40px var(--accent-gold-glow);
+    border: 1px solid rgba(212, 175, 55, 0.18);
+}
+
+.adv-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-filter {
+    background: transparent;
+    border: 0;
+    padding: 8px;
+    color: var(--brand-gold);
+    border-radius: 10px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-filter:focus {
+    box-shadow: 0 6px 20px rgba(212, 175, 55, 0.12);
+}
+
+.btn-action {
+    width: 44px;
+    height: 44px;
+    border-radius: 999px;
+    border: 0;
+    background: linear-gradient(135deg, #F3D88E, #D4AF37);
+    box-shadow: 0 10px 30px rgba(212, 175, 55, 0.18), inset 0 1px 2px rgba(255, 255, 255, 0.18);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.btn-action .arrow {
+    transition: transform 220ms cubic-bezier(.2, .9, .2, 1);
+}
+
+.btn-action:hover .arrow {
+    transform: translateX(4px);
+}
+
+.filter-panel {
+    position: absolute;
+    top: calc(100% + 12px);
+    left: 0;
+    width: 420px;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.01));
+    border-radius: 12px;
+    border: 1px solid var(--glass-border-adv);
+    padding: 12px;
+    backdrop-filter: blur(12px);
+    box-shadow: 0 14px 40px rgba(2, 8, 20, 0.6);
+    z-index: 120;
+}
+
+.filter-panel__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.filter-panel__body {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.filter-row {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.filter-panel__footer {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+    margin-top: 8px;
+}
+
+.btn-apply {
+    background: linear-gradient(90deg, #E8C77C, #D4AF37);
+    color: #071019;
+    padding: 10px 14px;
+    border-radius: 10px;
+    border: 0;
+    cursor: pointer;
+}
+
+.btn-reset {
+    background: transparent;
+    color: var(--brand-ice);
+    padding: 10px 12px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.04);
+    cursor: pointer;
+}
+
+@media (max-width:1000px) {
+    .adv-search {
+        max-width: 720px;
+    }
+
+    .search-input-adv {
+        width: 260px;
+    }
+}
+
+@media (max-width:700px) {
+    .adv-search {
+        max-width: 100%;
+        margin: 0 12px;
+    }
+
+    .adv-search__segmented {
+        display: none;
+    }
+
+    .search-input-adv {
+        width: 100%;
+    }
+
+    .filter-panel {
+        width: 100%;
+        left: 0;
+        top: calc(100% + 8px);
+    }
+}
 
 /* Selected chips for chosen creditors */
 .selected-chips {
@@ -413,8 +614,9 @@ select option {
     max-width: 360px;
     flex-wrap: wrap;
 }
+
 .selected-chips .chip {
-    background: rgba(255,255,255,0.04);
+    background: rgba(255, 255, 255, 0.04);
     color: var(--text-main);
     padding: 6px 10px;
     border-radius: 999px;
@@ -422,14 +624,16 @@ select option {
     display: flex;
     align-items: center;
     gap: 8px;
-    border: 1px solid rgba(255,255,255,0.04);
+    border: 1px solid rgba(255, 255, 255, 0.04);
 }
+
 .selected-chips .chip .chip-name {
     white-space: nowrap;
     max-width: 160px;
     overflow: hidden;
     text-overflow: ellipsis;
 }
+
 .selected-chips .chip .chip-remove {
     background: transparent;
     border: none;
@@ -447,7 +651,7 @@ select option {
     border: 1px solid var(--border-color);
     border-radius: 12px;
     padding: 8px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
     z-index: 60;
     max-height: 320px;
     overflow: auto;
@@ -463,7 +667,7 @@ select option {
 
 .creditor-dropdown .clear-selection-btn {
     background: transparent;
-    border: 1px solid rgba(255,255,255,0.04);
+    border: 1px solid rgba(255, 255, 255, 0.04);
     color: var(--text-main);
     padding: 6px 10px;
     border-radius: 8px;
@@ -494,7 +698,7 @@ select option {
 }
 
 .creditor-item:hover {
-    background: rgba(255,255,255,0.02);
+    background: rgba(255, 255, 255, 0.02);
 }
 
 .creditor-empty {
@@ -504,7 +708,11 @@ select option {
 }
 
 @media (max-width: 760px) {
-    .creditor-dropdown { width: 280px; left: auto; right: 0; }
+    .creditor-dropdown {
+        width: 280px;
+        left: auto;
+        right: 0;
+    }
 }
 
 .date-filter-group input[type="text"] {
@@ -721,6 +929,39 @@ select option {
     line-height: 1.2;
 }
 
+/* Summary cards: keep title at top and push amount/summary to the bottom for tidy layout */
+.summary-layout .card-info {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.summary-layout .card-info h3 {
+    /* push the rest of the content down */
+    margin-bottom: auto;
+}
+
+.summary-layout .card-info h2 {
+    /* ensure the amount is visually grouped at the bottom */
+    margin-top: 6px;
+}
+
+.summary-layout .card-info .percent-text {
+    margin-top: 6px;
+    color: var(--text-muted);
+}
+
+/* Make the 'ยังไม่ถึงกำหนด' card amount right-aligned and closer to the card edge */
+.summary-layout .card-notdue {
+    padding-right: 18px;
+    /* slightly reduce right padding so number sits nearer the edge */
+}
+
+.summary-layout .card-notdue .card-info h2 {
+    width: 100%;
+    text-align: right;
+}
+
 .percent-text {
     font-size: 14px;
     color: var(--text-muted);
@@ -836,7 +1077,8 @@ select option {
     border: 1px solid rgba(99, 102, 241, 0.28);
     border-radius: 22px;
     padding: 20px;
-    margin-bottom: 40px; /* Increased for bottom spacing */
+    margin-bottom: 40px;
+    /* Increased for bottom spacing */
     backdrop-filter: blur(18px);
     -webkit-backdrop-filter: blur(18px);
     box-shadow: inset 0 -1px 0 rgba(255, 255, 255, 0.08), 0 14px 28px rgba(0, 0, 0, 0.3), 0 0 58px rgba(88, 103, 247, 0.18);
@@ -1010,10 +1252,44 @@ select option {
     font-size: 16px;
 }
 
+
 .date-text {
     display: flex;
-    flex-direction: column;
-    gap: 2px;
+    flex-direction: row;
+    gap: 8px;
+    align-items: center;
+}
+
+/* Prevent date parts from wrapping so day / month / year stay on one line */
+.day-label {
+    color: #eef2ff;
+    font-weight: 700;
+    font-size: 15px;
+    white-space: nowrap;
+}
+
+.item-count {
+    color: var(--text-muted);
+    font-size: 13px;
+    white-space: nowrap;
+}
+
+/* Ensure table headers and cells do not wrap date text; allow horizontal scrolling when needed */
+.table-responsive {
+    overflow-x: auto;
+}
+
+.data-table th,
+.data-table td {
+    white-space: nowrap;
+}
+
+@media (max-width: 520px) {
+    .date-text {
+        flex-direction: column;
+        gap: 4px;
+        align-items: flex-start;
+    }
 }
 
 .day-label {
@@ -1351,6 +1627,22 @@ select option {
     animation: modalSlideIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
 }
 
+/* Wider modal variant used for table/details so table can reflow instead of scrolling */
+.modal-content.table-modal {
+    max-width: 1200px;
+    width: calc(100% - 64px);
+    padding: 20px 22px;
+    overflow: visible;
+}
+
+@media (max-width: 900px) {
+    .modal-content.table-modal {
+        max-width: 100%;
+        width: calc(100% - 32px);
+        padding: 16px;
+    }
+}
+
 @keyframes modalSlideIn {
     from {
         opacity: 0;
@@ -1491,18 +1783,28 @@ select option {
     border-radius: 10px;
 }
 
+/* Make table container allow wrapping instead of forcing horizontal scroll */
+.table-responsive {
+    overflow-x: visible;
+    max-width: 100%;
+}
+
 .data-table {
     width: 100%;
+    table-layout: fixed;
     border-collapse: collapse;
     color: var(--text-main);
-    font-size: 14px;
+    font-size: 12.5px;
 }
 
 .data-table th,
 .data-table td {
-    padding: 14px 18px;
+    padding: 6px 12px;
     text-align: left;
     border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    white-space: normal;
+    overflow-wrap: break-word;
+    word-break: break-word;
 }
 
 .data-table th {
@@ -1516,6 +1818,191 @@ select option {
     top: 0;
     z-index: 10;
     backdrop-filter: blur(8px);
+}
+
+/* Two-line header variant (e.g., "วันครบ\nกำหนด") */
+.data-table th.th-split {
+    white-space: normal;
+    text-align: center;
+    vertical-align: middle;
+    font-weight: 800;
+    font-size: 15px;
+    line-height: 1.05;
+    padding-top: 18px;
+    padding-bottom: 18px;
+}
+
+@media (max-width: 520px) {
+    .data-table th.th-split {
+        font-size: 13px;
+        padding-top: 12px;
+        padding-bottom: 12px;
+    }
+}
+
+/* Details modal controls */
+.details-controls {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 12px;
+}
+
+.details-controls .view-toggle {
+    display: flex;
+    gap: 8px;
+}
+
+/* Group summary bar - horizontal list of creditor totals */
+.group-summary-bar {
+    display: flex;
+    gap: 12px;
+    align-items: stretch;
+    padding: 10px 8px;
+    border-radius: 12px;
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.01));
+    border: 1px solid rgba(255, 255, 255, 0.03);
+    margin-bottom: 12px;
+    overflow-x: auto;
+}
+
+/* Print-only consolidated summary table (hidden on screen) */
+.print-summary-table-container {
+    display: none;
+}
+
+.print-summary-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 8px;
+}
+
+.print-summary-table th,
+.print-summary-table td {
+    padding: 6px 8px;
+    border: 1px solid #e2e8f0;
+}
+
+.print-summary-table thead th {
+    background: #f1f5f9;
+    color: #0f172a;
+    font-weight: 800;
+}
+
+.print-summary-table tbody td {
+    color: #0f172a;
+    font-weight: 600;
+}
+
+.print-summary-table tbody td:first-child {
+    text-align: left;
+}
+
+.print-summary-table tbody td:nth-child(2) {
+    text-align: center;
+    width: 110px;
+}
+
+.print-summary-table tbody td:nth-child(3) {
+    text-align: right;
+    width: 150px;
+}
+
+.print-global-header-section {
+    display: none;
+}
+
+@media print {
+    .print-global-header-section {
+        display: block !important;
+        position: relative !important;
+        width: 100% !important;
+        margin: 0 0 15px 0 !important;
+        page-break-after: auto !important;
+    }
+
+    .print-summary-table-container {
+        display: block !important;
+        position: relative !important;
+        margin: 10px 0 12px 0 !important;
+    }
+}
+
+.group-summary-bar::-webkit-scrollbar {
+    height: 8px;
+}
+
+.group-summary-bar::-webkit-scrollbar-thumb {
+    background: rgba(99, 102, 241, 0.25);
+    border-radius: 6px;
+}
+
+.group-card {
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.01));
+    border: 1px solid rgba(255, 255, 255, 0.04);
+    color: var(--text-main);
+    padding: 6px 12px;
+    min-width: 170px;
+    max-width: 300px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 12px;
+    border-radius: 10px;
+    text-align: left;
+    cursor: pointer;
+    flex: 0 0 auto;
+}
+
+.group-card .group-card-name {
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--text-main);
+    /* Allow name to take remaining space and wrap up to 2 lines */
+    flex: 1 1 auto;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.15;
+}
+
+.group-card .group-card-meta {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+    justify-content: center;
+    min-width: 140px;
+    flex-shrink: 0;
+}
+
+.group-card .group-count {
+    font-size: 12px;
+    color: var(--text-muted);
+    white-space: nowrap;
+}
+
+.group-card .group-total {
+    font-weight: 800;
+    color: var(--accent-primary);
+    white-space: nowrap;
+}
+
+.group-card.is-selected {
+    box-shadow: 0 8px 28px rgba(99, 102, 241, 0.12);
+    border-color: rgba(99, 102, 241, 0.28);
+}
+
+@media (max-width: 760px) {
+    .group-card {
+        min-width: 140px;
+        padding: 8px 10px;
+    }
+
+    .group-card .group-card-name {
+        font-size: 13px;
+    }
 }
 
 .data-table tbody tr {
@@ -1532,6 +2019,141 @@ select option {
 
 .data-table tbody tr:hover {
     background: rgba(139, 92, 246, 0.08);
+}
+
+/* Column width hints so fixed table layout can distribute space and allow wrapping */
+.data-table th:nth-child(1),
+.data-table td:nth-child(1) {
+    width: 9%;
+}
+
+.data-table th:nth-child(2),
+.data-table td:nth-child(2) {
+    width: 16%;
+}
+
+.data-table th:nth-child(3),
+.data-table td:nth-child(3) {
+    width: 35%;
+}
+
+.data-table th:nth-child(4),
+.data-table td:nth-child(4) {
+    width: 10%;
+}
+
+.data-table th:nth-child(5),
+.data-table td:nth-child(5) {
+    width: 15%;
+}
+
+.data-table th:nth-child(6),
+.data-table td:nth-child(6) {
+    width: 15%;
+    min-width: 140px;
+    text-align: right;
+    white-space: nowrap !important;
+}
+
+@media (max-width: 760px) {
+    .data-table {
+        font-size: 13px;
+    }
+
+    .data-table th:nth-child(1),
+    .data-table td:nth-child(1) {
+        width: 12%;
+    }
+
+    .data-table th:nth-child(2),
+    .data-table td:nth-child(2) {
+        width: 20%;
+    }
+
+    .data-table th:nth-child(3),
+    .data-table td:nth-child(3) {
+        width: 40%;
+    }
+
+    .data-table th:nth-child(4),
+    .data-table td:nth-child(4) {
+        width: 10%;
+    }
+
+    .data-table th:nth-child(5),
+    .data-table td:nth-child(5) {
+        width: 12%;
+    }
+
+    .data-table th:nth-child(6),
+    .data-table td:nth-child(6) {
+        width: 8%;
+    }
+
+    .modal-content.table-modal {
+        width: calc(100% - 24px);
+        padding: 12px;
+    }
+}
+
+/* Status cell: prevent overflow on screen, show ellipsis */
+.data-table .status-text {
+    display: inline-block;
+    max-width: 160px;
+    overflow: hidden;
+    white-space: nowrap;
+    vertical-align: middle;
+    font-size: 12px;
+    line-height: 1.1;
+    transition: font-size 120ms ease;
+}
+
+@media (max-width: 760px) {
+    .data-table .status-text {
+        max-width: 110px;
+        font-size: 12px;
+    }
+}
+
+/* Category + status inline wrapper */
+.cat-wrap {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.cat-pill {
+    background: rgba(255, 255, 255, 0.06);
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    white-space: nowrap;
+}
+
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-left: 6px;
+}
+
+.status-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.status-label {
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+.due-date-cell {
+    text-align: center;
+    color: var(--text-muted);
+    white-space: nowrap;
 }
 
 /* Premium close button for details modal */
@@ -1707,9 +2329,9 @@ select option {
     justify-content: flex-end;
     align-items: center;
     gap: 15px;
-    margin-top: 30px;
-    padding-top: 20px;
-    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    padding: 20px 30px;
+    background: rgba(15, 17, 26, 0.95);
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .pdf-btn-luxury {
@@ -1740,8 +2362,9 @@ select option {
 
 /* Total Row Summary */
 .total-row-summary {
-    background: rgba(99, 102, 241, 0.15) !important;
-    border-top: 2px solid var(--accent-primary) !important;
+    background: #0f172a !important;
+    /* พื้นหลังสีเข้มแบบในรูป */
+    border-top: 1px solid rgba(99, 102, 241, 0.4) !important;
 }
 
 .total-label {
@@ -1785,7 +2408,8 @@ select option {
 
 @page {
     size: A4 portrait;
-    margin: 10mm 15mm 10mm 15mm;
+    margin: 4mm;
+    /* much tighter for compact print */
     /* Tighter margins to maximize content area */
 }
 
@@ -1799,7 +2423,9 @@ select option {
 }
 
 @media print {
-    html, body {
+
+    html,
+    body {
         height: auto !important;
         overflow: visible !important;
         background: #ffffff !important;
@@ -1839,6 +2465,7 @@ select option {
     .modal-backdrop,
     .loading-overlay,
     .details-btn-wrapper,
+    .details-controls,
     .modal-header-flex .premium-btn,
     .modal-footer,
     .pdf-btn-luxury,
@@ -1855,7 +2482,8 @@ select option {
         margin: 0 !important;
         padding: 0 !important;
         visibility: hidden !important;
-        position: static !important; /* Reset position */
+        position: static !important;
+        /* Reset position */
     }
 
     /* CRITICAL: ONLY print the modal that is currently active (NOT hidden) */
@@ -1877,7 +2505,7 @@ select option {
 
     #detailsModal:not(.hidden),
     #dateDetailModal:not(.hidden) {
-        position: relative !important; 
+        position: relative !important;
         left: 0 !important;
         top: 0 !important;
         width: 100% !important;
@@ -1909,8 +2537,8 @@ select option {
         max-width: 100% !important;
         overflow: visible !important;
         display: block !important;
-        position: relative !important; 
-        transform: none !important; 
+        position: relative !important;
+        transform: none !important;
         min-height: auto !important;
         /* KILL THE FADE: Reset masks and filters */
         mask-image: none !important;
@@ -2097,12 +2725,46 @@ select option {
     .data-table td {
         border: 1px solid #cbd5e1 !important;
         padding: 10px 8px !important;
-        font-size: 8pt !important;
-        color: #1e293b !important;
+        font-size: 10pt !important;
+        color: #0f172a !important;
+        font-weight: 600 !important;
         word-wrap: break-word !important;
         white-space: normal !important;
         vertical-align: middle !important;
         text-align: left !important;
+    }
+
+    /* Make group summary text clearer in print */
+    .group-card .group-card-name {
+        font-size: 11pt !important;
+        color: #0f172a !important;
+        font-weight: 700 !important;
+        line-height: 1.15 !important;
+    }
+
+    .group-card .group-total {
+        font-size: 11pt !important;
+        color: #5b21b6 !important;
+        font-weight: 800 !important;
+    }
+
+    /* Ensure general print text is rendered crisply */
+    .modal-content.table-modal,
+    .modal-content.table-modal *,
+    .data-table th,
+    .data-table td {
+        -webkit-font-smoothing: antialiased !important;
+        text-rendering: optimizeLegibility !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+
+    /* Print: allow status labels to wrap instead of overflowing */
+    .data-table .status-text {
+        white-space: normal !important;
+        word-wrap: break-word !important;
+        overflow: visible !important;
+        text-overflow: clip !important;
     }
 
     /* Numeric alignment improvements for amounts */
@@ -2136,6 +2798,15 @@ select option {
 
     .data-table td:last-child {
         text-align: right !important;
+    }
+
+    /* Ensure due-date column (5) stays on one line in print */
+    .data-table th:nth-child(5),
+    .data-table td:nth-child(5) {
+        white-space: nowrap !important;
+        overflow: visible !important;
+        word-wrap: normal !important;
+        word-break: normal !important;
     }
 
     /* แถวตารางเป็นสีเดียวกัน - ลบการสลับสี */
@@ -2228,7 +2899,8 @@ select option {
         display: block !important;
         page-break-inside: avoid !important;
         break-inside: avoid-page !important;
-        page-break-before: auto !important; /* Let it move to next page together if needed */
+        page-break-before: auto !important;
+        /* Let it move to next page together if needed */
         margin: 0 !important;
         padding: 0 !important;
         position: relative !important;
@@ -2279,11 +2951,13 @@ select option {
 
     /* Apply to all tfoot cells for luxury consistency */
     .data-table tfoot tr td {
-        border: 2px solid #5b51d8 !important; /* Formal indigo border */
+        border: 2px solid #5b51d8 !important;
+        /* Formal indigo border */
         padding: 12px 10px !important;
         font-size: 10.5pt !important;
         font-weight: 800 !important;
-        background-color: #f8fafc !important; /* Professional light gray */
+        background-color: #f8fafc !important;
+        /* Professional light gray */
         color: #1e293b !important;
         -webkit-print-color-adjust: exact;
         print-color-adjust: exact;
@@ -2312,7 +2986,7 @@ select option {
         width: 100% !important;
 
         /* Enhanced spacing to stay after the total strictly */
-        margin-top: 50px !important; 
+        margin-top: 50px !important;
         margin-bottom: 0 !important;
         padding-top: 30px !important;
         padding-bottom: 0 !important;
@@ -2411,5 +3085,442 @@ select option {
     /* Prevent orphaning of date text */
     .signature-box p.date {
         page-break-before: avoid !important;
+    }
+
+    /* Additional print overrides to prevent visual overlap in generated PDF */
+    /* Ensure branding header has breathing room from the table */
+    .print-branding-header {
+        margin-bottom: 8px !important;
+        padding-bottom: 4px !important;
+    }
+
+    .print-report-header-only {
+        margin-top: 4px !important;
+        margin-bottom: 8px !important;
+    }
+
+    /* Stack group summary for print and avoid horizontal overflow */
+    /* Use a consolidated table in print instead of card-list */
+    .group-summary-bar {
+        display: none !important;
+    }
+
+    /* Use natural flow instead of absolute positioning */
+    .modal .modal-content {
+        margin-top: 0 !important;
+        position: relative !important;
+    }
+
+    /* ============ Compact Print Overrides ============ */
+    /* Aggressively reduce spacing, padding and font sizes to fit more rows on a single page */
+    html,
+    body,
+    .modal-content.table-modal {
+        font-size: 8.5pt !important;
+    }
+
+    .print-branding-header .branding-logo h1 {
+        font-size: 11pt !important;
+    }
+
+    .branding-meta p {
+        font-size: 7pt !important;
+    }
+
+    .print-report-header-only {
+        font-size: 12pt !important;
+        margin-bottom: 6px !important;
+    }
+
+    /* Make group-summary highly compact (stacked list with minimal padding) */
+    .group-summary-bar {
+        gap: 4px !important;
+        margin-bottom: 6px !important;
+    }
+
+    .group-summary-bar .group-card {
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        padding: 4px 6px !important;
+        margin: 0 0 4px 0 !important;
+        min-width: 0 !important;
+        max-width: 100% !important;
+        border: none !important;
+        background: transparent !important;
+    }
+
+    .group-card .group-card-name {
+        font-size: 8pt !important;
+        line-height: 1 !important;
+        -webkit-line-clamp: 1;
+    }
+
+    .group-card .group-card-meta {
+        flex-direction: column !important;
+        align-items: flex-end !important;
+        min-width: 80px !important;
+    }
+
+    .group-card .group-total {
+        font-size: 9pt !important;
+        font-weight: 800 !important;
+    }
+
+    /* Table compaction */
+    .table-responsive {
+        overflow: visible !important;
+    }
+
+    .data-table {
+        font-size: 8.5pt !important;
+        table-layout: fixed !important;
+    }
+
+    .data-table th {
+        padding: 6px 6px !important;
+        font-size: 8.5pt !important;
+    }
+
+    .data-table td {
+        padding: 4px 6px !important;
+        font-size: 8pt !important;
+        line-height: 1 !important;
+    }
+
+    .data-table td,
+    .data-table th {
+        border-width: 1px !important;
+    }
+
+    /* Reduce header branding footprint */
+    .print-branding-header {
+        padding-bottom: 2px !important;
+        margin-bottom: 6px !important;
+    }
+
+    /* Hide non-essential print elements to save space */
+    .print-signature-area,
+    .modal-footer,
+    .pdf-btn-luxury {
+        display: none !important;
+    }
+
+    /* Slight scale down as a last resort for very long lists (helps fit one extra row or two) */
+    .modal-content.table-modal {
+        transform: scale(0.96) !important;
+        transform-origin: top left !important;
+    }
+
+    /* Make numeric columns tight and aligned */
+    .data-table td.amount,
+    .data-table td:last-child,
+    .total-amount-val {
+        font-size: 9pt !important;
+        font-weight: 800 !important;
+        padding-top: 4px !important;
+        padding-bottom: 4px !important;
+    }
+
+    /* Reduce margins between rows for maximum density */
+    .data-table tbody tr td {
+        padding-top: 3px !important;
+        padding-bottom: 3px !important;
+    }
+
+    /* Final protection: keep header + content contiguous where possible */
+    .print-report-container {
+        page-break-before: auto !important;
+        page-break-inside: avoid !important;
+    }
+
+}
+
+@media print {
+
+    /* บังคับสีพื้นหลังให้มาเต็ม 100% */
+    * {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+
+    @page {
+        size: A4;
+        margin: 15mm;
+    }
+
+    /* จัดทรงตารางใหม่ให้ดูพรีเมียม */
+    .print-summary-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-family: 'Prompt', sans-serif !important;
+        border: 1px solid #cbd5e1 !important;
+    }
+
+    /* หัวตาราง: สีม่วงน้ำเงินเข้ม ทรงพลัง */
+    .print-summary-table th {
+        background-color: #4f46e5 !important;
+        color: #ffffff !important;
+        padding: 12px 15px;
+        font-size: 14px;
+        border: 1px solid #4f46e5 !important;
+    }
+
+    /* แถวข้อมูล: สะอาดตา อ/* บังคับกรอบตารางให้มีแถบเลื่อนบนหน้าจอ (Screen only) */
+    @media screen {
+        .modal-content.table-modal {
+            max-height: 85vh !important;
+            display: flex !important;
+            flex-direction: column !important;
+        }
+
+        .table-responsive {
+            max-height: 60vh !important;
+            overflow-y: auto !important;
+            overflow-x: auto !important;
+        }
+
+        /* ซ่อนหัวข้อบริษัทตอนอยู่บนหน้าจอ */
+        .print-report-container::before {
+            display: none !important;
+        }
+    }
+
+    /* =========================================
+   คอมโบเซ็ต: ปริ้น PDF สวย, มีหัวข้อ, มีลายเซ็น!
+   ========================================= */
+    @media print {
+
+        /* 1. ซ่อนของกวนใจบนเว็บ */
+        body:has(.modal:not(.hidden)) .print-global-header-section,
+        body:has(.modal:not(.hidden)) .dashboard-container,
+        .modal-footer,
+        .close-btn,
+        .details-controls,
+        #detailsModalTitle,
+        #dateDetailModalTitle,
+        .modal-content>h2 {
+            display: none !important;
+        }
+
+        /* 2. ปลดล็อกกรอบ ให้ออกมาเต็มหน้า A4 */
+        .modal:not(.hidden) {
+            position: absolute !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 100% !important;
+            background: transparent !important;
+        }
+
+        .modal-content,
+        .table-responsive {
+            max-height: none !important;
+            overflow: visible !important;
+            border: none !important;
+            box-shadow: none !important;
+            padding: 0 !important;
+        }
+
+        /* 3. เสกหัวข้อบริษัทแปะติดเหนือตาราง */
+        .print-report-container::before {
+            content: "❖ THAI DRILL DATA ANALYTICS Expense Dashboard ❖";
+            display: block !important;
+            text-align: center !important;
+            font-family: 'Prompt', sans-serif !important;
+            font-size: 24px !important;
+            font-weight: 800 !important;
+            color: #1e293b !important;
+            margin-top: 10px !important;
+            margin-bottom: 25px !important;
+            padding-bottom: 20px !important;
+            border-bottom: 3.5px solid #4f46e5 !important;
+        }
+
+        /* 4. เปิดช่องเซ็นชื่อด้านล่าง (ห้ามขาดครึ่งหน้า) */
+        .print-signature-area {
+            display: block !important;
+            margin-top: 60px !important;
+            page-break-before: auto !important;
+            page-break-inside: avoid !important;
+        }
+
+        .print-signature-grid {
+            display: flex !important;
+            justify-content: space-around !important;
+            text-align: center !important;
+            gap: 20px !important;
+            page-break-inside: avoid !important;
+        }
+
+        .signature-box {
+            flex: 1;
+            color: #1e293b !important;
+            page-break-inside: avoid !important;
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: center !important;
+        }
+
+        .signature-box p.title {
+            font-weight: 800 !important;
+            margin-bottom: 40px !important;
+        }
+
+        .signature-line {
+            border-bottom: 1.5px solid #1e293b !important;
+            margin-bottom: 10px !important;
+            width: 180px !important;
+        }
+
+        .signature-box p.date {
+            font-size: 13px !important;
+            white-space: nowrap !important;
+        }
+    }
+
+    @page {
+        size: A4;
+        margin: 15mm 10mm;
+    }
+
+}
+
+/* ซ่อนหัวเดดิมของ Modal เพื่อให้หัวข้อบริษัทเด่นที่สุด */
+#detailsModalTitle,
+#dateDetailModalTitle,
+.modal-content>h2 {
+    display: none !important;
+}
+
+/* หัวข้อบริษัท: แสดงทั้งบนหน้าจอและตอนปริ้น */
+.print-report-container::before {
+    content: "❖ THAI DRILL DATA ANALYTICS Expense Dashboard ❖";
+    display: block !important;
+    text-align: center !important;
+    font-family: 'Prompt', sans-serif !important;
+    font-size: 20px !important;
+    font-weight: 800 !important;
+    color: rgba(255, 255, 255, 0.45) !important;
+    /* สีจางๆ แบบมินิมอลตามรูป */
+    letter-spacing: 1px;
+    margin: 15px 0 25px 0 !important;
+    padding-bottom: 20px !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+/* ปรับแต่งส่วนท้ายตาราง (Total Row) ให้เด่นชัด */
+.data-table tfoot .total-row-summary {
+    background: rgba(99, 102, 241, 0.08) !important;
+    border-top: 1px solid rgba(99, 102, 241, 0.2) !important;
+}
+
+.data-table tfoot .total-amount-val {
+    color: var(--accent-primary) !important;
+    font-size: 15px !important;
+}
+
+@page {
+    size: A4;
+    margin: 15mm 10mm;
+}
+
+/* =========================================
+   เซ็ตจบ: ปริ้น PDF ยาวทะลุจอ + มีหัวข้อ + มีที่เซ็น!
+   ========================================= */
+@media print {
+
+    /* 1. ซ่อนของกวนใจบนเว็บ */
+    body:has(.modal:not(.hidden)) .print-global-header-section,
+    body:has(.modal:not(.hidden)) .dashboard-container {
+        display: none !important;
+    }
+
+    /* 2. ปลดล็อคกรอบ ให้ออกมาเต็มหน้า A4 */
+    .modal:not(.hidden) {
+        position: absolute !important;
+        top: 0 !important;
+        left: 0 !important;
+        width: 100% !important;
+        background: transparent !important;
+    }
+
+    .modal-content,
+    .table-responsive {
+        max-height: none !important;
+        overflow: visible !important;
+        border: none !important;
+        box-shadow: none !important;
+        padding: 0 !important;
+    }
+
+    /* 3. ท่าไม้ตายเสกหัวข้อ! (เอา h2 ตัวเดิมมาแปลงร่าง) */
+    #detailsModalTitle,
+    #dateDetailModalTitle {
+        display: block !important;
+        text-align: center !important;
+        border-left: none !important;
+        padding-left: 0 !important;
+        margin-top: 15px !important;
+        margin-bottom: 25px !important;
+        padding-bottom: 15px !important;
+        border-bottom: 3px solid #4f46e5 !important;
+        font-size: 0 !important;
+        /* ซ่อนคำว่า 'รายละเอียดรายการ' เดิม */
+    }
+
+    /* พิมพ์ชื่อบริษัทเข้าไปใหม่ให้หรูหรา */
+    #detailsModalTitle::after,
+    #dateDetailModalTitle::after {
+        content: "❖ THAI DRILL DATA ANALYTICS Expense Dashboard ❖";
+        display: block !important;
+        font-family: 'Prompt', sans-serif !important;
+        font-size: 24px !important;
+        font-weight: 800 !important;
+        color: #1e293b !important;
+        /* ถ้าติ๊ก Background graphics จะเป็นสีน้ำเงินเข้ม */
+    }
+
+    /* 4. เปิดช่องเซ็นชื่อด้านล่าง */
+    .print-signature-area {
+        display: block !important;
+        margin-top: 50px !important;
+        page-break-inside: avoid !important;
+    }
+
+    .print-signature-grid {
+        display: flex !important;
+        justify-content: space-around !important;
+        text-align: center !important;
+        gap: 20px !important;
+    }
+
+    .signature-box {
+        flex: 1;
+        color: #1e293b !important;
+    }
+
+    .signature-box p.title {
+        font-weight: 800 !important;
+        margin-bottom: 50px !important;
+    }
+
+    .signature-line {
+        border-bottom: 1px solid #1e293b !important;
+        margin-bottom: 10px !important;
+        width: 80% !important;
+        margin-left: auto !important;
+        margin-right: auto !important;
+    }
+
+    .signature-box p.date {
+        font-size: 12px !important;
+    }
+
+    /* 5. ซ่อนปุ่มกดยกเลิกตอนปริ้น */
+    .modal-footer,
+    .close-btn,
+    .details-controls {
+        display: none !important;
     }
 }

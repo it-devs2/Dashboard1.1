@@ -16,6 +16,39 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </head>
 <body>
+    <!-- Global Print Header and Summary Table -->
+    <div class="print-global-header-section">
+        <div class="print-branding-header" id="globalPrintBranding">
+            <div class="branding-main">
+                <div class="branding-logo">
+                    <i class='bx bxl-codepen'></i>
+                    <h1>THAI DRILL DATA ANALYTICS <span class="report-badge">Expense Dashboard</span></h1>
+                </div>
+            </div>
+            <div class="branding-meta">
+                <p>เลขที่เอกสาร: <span id="printDocIdGlobal">RT-XXXXXX</span></p>
+                <p>ออกรายงานเมื่อ: <span id="printIssueDateGlobal">DD/MM/YYYY</span></p>
+            </div>
+        </div>
+        
+        <div id="printReportHeaderGlobal" class="print-report-header-only">ประเภทรายงาน: -</div>
+
+        <div id="globalPrintGroupTable" class="print-summary-table-container">
+            <table class="print-summary-table">
+                <thead>
+                    <tr>
+                        <th style="text-align:left;">เจ้าหนี้</th>
+                        <th style="text-align:center; width:110px;">จำนวน</th>
+                        <th style="text-align:right; width:150px;">จำนวนเงิน</th>
+                    </tr>
+                </thead>
+                <tbody id="globalPrintGroupTableBody"></tbody>
+                <tfoot id="globalPrintGroupTableFooter">
+                </tfoot>
+            </table>
+        </div>
+    </div>
+
     <div class="dashboard-container">
         <!-- Sidebar or Header -->
         <header class="top-nav">
@@ -299,22 +332,6 @@
             <span class="close-date-detail-btn close-btn">&times;</span>
             <h2 id="dateDetailModalTitle" style="margin-bottom: 24px; color: var(--text-main); border-left: 4px solid var(--accent-primary); padding-left: 15px;">รายละเอียดวันที่</h2>
             
-            <!-- Print branding for date detail -->
-            <div class="print-branding-header">
-                <div class="branding-main">
-                    <div class="branding-logo">
-                        <i class='bx bxl-codepen'></i>
-                        <h1>THAI DRILL DATA ANALYTICS <span class="report-badge">Expense Dashboard</span></h1>
-                    </div>
-                </div>
-                <div class="branding-meta">
-                    <p>เลขที่เอกสาร: <span id="printDateDocId">PAY-XXXXXX</span></p>
-                    <p>ออกรายงานเมื่อ: <span id="printDateIssueDate">DD/MM/YYYY</span></p>
-                </div>
-            </div>
-            
-            <div id="printDateReportHeader" class="print-report-header-only">เอกสารจ่ายประจำวันที่: -</div>
-            <!-- Combined Print Report Container: Table + Footer + Signatures -->
             <div class="print-report-container">
                 <!-- Main Data Table -->
                 <div class="table-responsive">
@@ -377,25 +394,18 @@
         <div class="modal-content table-modal">
             <span class="close-details-btn close-btn">&times;</span>
             <h2 id="detailsModalTitle" style="margin-bottom: 24px; color: var(--text-main); border-left: 4px solid var(--accent-primary); padding-left: 15px;">รายละเอียดรายการ</h2>
-            
-            <!-- โครงสร้างหัวรายงานสำหรับพิมพ์เท่านั้น (Luxury Branding) -->
-            <div class="print-branding-header">
-                <div class="branding-main">
-                    <div class="branding-logo">
-                        <i class='bx bxl-codepen'></i>
-                        <h1>THAI DRILL DATA ANALYTICS <span class="report-badge">Expense Dashboard</span></h1>
-                    </div>
-                </div>
-                <div class="branding-meta">
-                    <p>เลขที่เอกสาร: <span id="printDocId">RT-XXXXXX</span></p>
-                    <p>ออกรายงานเมื่อ: <span id="printIssueDate">DD/MM/YYYY</span></p>
+            <div class="details-controls">
+                <div class="view-toggle">
+                    <button id="btnViewItems" class="seg-btn is-active" aria-pressed="true">รายการ</button>
+                    <button id="btnViewGrouped" class="seg-btn" aria-pressed="false">สรุปเจ้าหนี้</button>
                 </div>
             </div>
             
-            <div id="printReportHeader" class="print-report-header-only">ประเภทรายงาน: -</div>
-            
             <!-- Combined Print Report Container: Table + Footer + Signatures -->
             <div class="print-report-container">
+                <!-- Grouped summary (per-creditor) -->
+                <div id="groupSummaryBar" class="group-summary-bar" hidden></div>
+
                 <!-- Main Data Table -->
                 <div class="table-responsive">
                     <table class="data-table">
@@ -405,7 +415,7 @@
                                 <th>เจ้าหนี้</th>
                                 <th>รายละเอียด</th>
                                 <th>หมวดหมู่</th>
-                                <th>วันครบกำหนด</th>
+                                <th class="th-split">วันครบ<br>กำหนด</th>
                                 <th style="text-align: right; white-space: nowrap;">จำนวนเงิน</th>
                             </tr>
                         </thead>
