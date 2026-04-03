@@ -11,6 +11,9 @@ let currentFilteredData = [];
 // ตัวแปรเก็บกราฟ
 let donutChart;
 let barChart;
+// Creditor dropdown data + selection state
+let creditorData = [];
+let selectedCreditors = new Set();
 
 // Thai month mapping for sorting and comparison
 const monthMap = {
@@ -110,19 +113,152 @@ const init = async () => {
 
 // Setup Listeners
 const setupEventListeners = () => {
-    paymentStatusFilter.addEventListener('change', updateDashboard);
-    categoryFilter.addEventListener('change', updateDashboard);
-    dayFilter.addEventListener('change', updateDashboard);
-    monthFilter.addEventListener('change', updateDashboard);
-    yearFilter.addEventListener('change', updateDashboard);
+    const creditorFilter = document.getElementById('creditorFilter');
+    const searchClearBtn = document.querySelector('.search-clear');
+
+    // Wrap calls so we control whether date-summary updates.
+    if (paymentStatusFilter) paymentStatusFilter.addEventListener('change', () => updateDashboard());
+    if (categoryFilter) categoryFilter.addEventListener('change', () => updateDashboard());
+    if (dayFilter) dayFilter.addEventListener('change', () => updateDashboard());
+    if (monthFilter) monthFilter.addEventListener('change', () => updateDashboard());
+    if (yearFilter) yearFilter.addEventListener('change', () => updateDashboard());
+
+    // For the creditor search input we intentionally skip updating the Date Summary
+    // so that searching only affects the top area (cards + charts) as requested.
+    if (creditorFilter) {
+        // typing filters the dropdown and updates the top charts/cards only
+        // do NOT open dropdown on empty input to avoid auto-popup
+        creditorFilter.addEventListener('input', (e) => {
+            const q = e.target.value || '';
+            filterCreditorDropdown(q, false);
+            searchClearBtn && (searchClearBtn.hidden = creditorFilter.value.trim() === '');
+            updateDashboard({ skipDateSummary: true });
+        });
+
+        // open dropdown only when user explicitly clicks the input (forceOpen)
+        creditorFilter.addEventListener('click', (e) => {
+            e.stopPropagation();
+            filterCreditorDropdown(e.target.value || '', true);
+        });
+
+        // show / hide clear button and wire its behavior
+        if (searchClearBtn) {
+            searchClearBtn.hidden = creditorFilter.value.trim() === '';
+            creditorFilter.addEventListener('input', () => {
+                searchClearBtn.hidden = creditorFilter.value.trim() === '';
+            });
+            searchClearBtn.addEventListener('click', () => {
+                creditorFilter.value = '';
+                searchClearBtn.hidden = true;
+                // update dropdown
+                filterCreditorDropdown('');
+                creditorFilter.focus();
+                // top area updates
+                updateDashboard({ skipDateSummary: true });
+            });
+            creditorFilter.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    // close dropdown first
+                    closeCreditorDropdown();
+                    creditorFilter.value = '';
+                    searchClearBtn.hidden = true;
+                    filterCreditorDropdown('');
+                    updateDashboard({ skipDateSummary: true });
+                } else if (e.key === 'ArrowDown') {
+                    // focus first checkbox if exists
+                    const first = document.querySelector('#creditorListPanel .creditor-checkbox');
+                    if (first) first.focus();
+                } else if (e.key === 'Enter') {
+                    // If user presses Enter in the input, pick the first filtered creditor (if any)
+                    const firstChk = document.querySelector('#creditorListPanel .creditor-checkbox');
+                    if (firstChk) {
+                        // toggle and trigger change
+                        firstChk.checked = !firstChk.checked;
+                        firstChk.dispatchEvent(new Event('change', { bubbles: true }));
+                        // keep focus in input
+                        e.preventDefault();
+                        creditorFilter.focus();
+                    }
+                }
+            });
+        }
+
+        // Toolbar buttons inside dropdown: clear-selection
+        const clearSelectionBtn = document.querySelector('.clear-selection-btn');
+        if (clearSelectionBtn) {
+            clearSelectionBtn.addEventListener('click', () => {
+                selectedCreditors.clear();
+                document.querySelectorAll('#creditorListPanel .creditor-checkbox').forEach(cb => cb.checked = false);
+                updateSelectedChips();
+                updateDashboard({ skipDateSummary: true });
+            });
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+            const headerSearch = document.querySelector('.header-search');
+            if (headerSearch && !headerSearch.contains(e.target)) {
+                closeCreditorDropdown();
+            }
+        });
+    }
 
     // PayDoc date section filters (independent)
     const payDocStatusFilter = document.getElementById('payDocStatusFilter');
     const payDocMonthFilter = document.getElementById('payDocMonthFilter');
     const payDocYearFilter = document.getElementById('payDocYearFilter');
+
     if (payDocStatusFilter) payDocStatusFilter.addEventListener('change', updateDateSummary);
     if (payDocMonthFilter) payDocMonthFilter.addEventListener('change', updateDateSummary);
     if (payDocYearFilter) payDocYearFilter.addEventListener('change', updateDateSummary);
+
+    // Advanced search segmented control and filter panel
+    const segButtons = document.querySelectorAll('.seg-btn');
+    segButtons.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            segButtons.forEach(s => s.classList.remove('is-active'));
+            segButtons.forEach(s => s.setAttribute('aria-pressed', 'false'));
+            e.currentTarget.classList.add('is-active');
+            e.currentTarget.setAttribute('aria-pressed', 'true');
+            // future: switch search mode
+        });
+    });
+
+    const advFilterBtn = document.getElementById('advFilterBtn');
+    const advFilterPanel = document.getElementById('advFilterPanel');
+    const advFilterClose = advFilterPanel && advFilterPanel.querySelector('.btn-close');
+    if (advFilterBtn && advFilterPanel) {
+        advFilterBtn.addEventListener('click', (e) => {
+            const expanded = advFilterBtn.getAttribute('aria-expanded') === 'true';
+            advFilterBtn.setAttribute('aria-expanded', String(!expanded));
+            advFilterPanel.hidden = expanded; // if expanded true -> hide
+            updateHeaderSpacing();
+        });
+        if (advFilterClose) {
+            advFilterClose.addEventListener('click', () => {
+                advFilterPanel.hidden = true;
+                advFilterBtn.setAttribute('aria-expanded', 'false');
+                updateHeaderSpacing();
+            });
+        }
+        // apply / reset buttons
+        const applyBtn = advFilterPanel.querySelector('.btn-apply');
+        const resetBtn = advFilterPanel.querySelector('.btn-reset');
+        if (applyBtn) applyBtn.addEventListener('click', () => {
+            // apply filters - for now, close panel and trigger dashboard update
+            advFilterPanel.hidden = true;
+            advFilterBtn.setAttribute('aria-expanded', 'false');
+            updateHeaderSpacing();
+            updateDashboard({ skipDateSummary: true });
+        });
+        if (resetBtn) resetBtn.addEventListener('click', () => {
+            advFilterPanel.querySelectorAll('select, input').forEach(i => {
+                if (i.type === 'checkbox' || i.type === 'radio') i.checked = false;
+                else if (i.type === 'range') i.value = i.min || 0;
+                else i.value = '';
+            });
+        });
+    }
 
     refreshBtn.addEventListener('click', async () => {
         if (GOOGLE_APP_SCRIPT_URL === 'YOUR_WEB_APP_URL_HERE') {
@@ -463,8 +599,19 @@ const fetchData = async () => {
         const response = await fetch(GOOGLE_APP_SCRIPT_URL);
         const result = await response.json();
 
+
         if (result.status === 'success') {
             allData = result.data;
+
+            // Populate Creditor Datalist + custom dropdown
+            const creditors = [...new Set(allData.map(item => item.creditor))].filter(Boolean).sort();
+            const datalist = document.getElementById('creditorList');
+            if (datalist) {
+                datalist.innerHTML = creditors.map(c => `<option value="${c}">`).join('');
+            }
+            creditorData = creditors;
+            renderCreditorDropdown(creditors);
+
             updateDashboard();
         } else {
             console.error('API Error:', result.message);
@@ -479,13 +626,139 @@ const fetchData = async () => {
 };
 
 
+// ---- Creditor dropdown helpers ----
+function renderCreditorDropdown(list = []) {
+    const panel = document.getElementById('creditorListPanel');
+    if (!panel) return;
+    panel.innerHTML = '';
+    if (!list || list.length === 0) {
+        panel.innerHTML = '<div class="creditor-empty">ไม่พบชื่อเจ้าหนี้</div>';
+        return;
+    }
+    const frag = document.createDocumentFragment();
+    list.forEach((name, idx) => {
+        const label = document.createElement('label');
+        label.className = 'creditor-item';
+
+        const chk = document.createElement('input');
+        chk.type = 'checkbox';
+        chk.className = 'creditor-checkbox';
+        chk.dataset.name = name;
+        chk.id = `creditor_chk_${idx}`;
+        if (selectedCreditors.has(name)) chk.checked = true;
+
+        const span = document.createElement('span');
+        span.className = 'creditor-name';
+        span.textContent = name;
+
+        label.appendChild(chk);
+        label.appendChild(span);
+        frag.appendChild(label);
+    });
+    panel.appendChild(frag);
+
+    // wire checkbox change events
+    panel.querySelectorAll('.creditor-checkbox').forEach(cb => {
+        cb.addEventListener('change', (e) => {
+            const nm = e.target.dataset.name;
+            if (e.target.checked) selectedCreditors.add(nm);
+            else selectedCreditors.delete(nm);
+            updateSelectedChips();
+            updateDashboard({ skipDateSummary: true });
+        });
+    });
+}
+
+function filterCreditorDropdown(q = '', forceOpen = false) {
+    const query = (q || '').toString().trim().toLowerCase();
+    const filtered = creditorData.filter(n => n.toLowerCase().includes(query));
+    renderCreditorDropdown(filtered);
+    const dropdown = document.getElementById('creditorDropdown');
+    if (!dropdown) return;
+    // Only open the dropdown when forced (user clicked) or when user typed
+    // something (query length > 0) or when there are already selected creditors.
+    if (forceOpen || query.length > 0 || (selectedCreditors && selectedCreditors.size > 0)) {
+        dropdown.hidden = false;
+    } else {
+        dropdown.hidden = true;
+    }
+    // adjust header spacing to avoid overlapping content
+    updateHeaderSpacing();
+}
+
+function updateSelectedChips() {
+    const container = document.getElementById('selectedChips');
+    if (!container) return;
+    container.innerHTML = '';
+    if (selectedCreditors.size === 0) {
+        container.hidden = true;
+        return;
+    }
+    container.hidden = false;
+    selectedCreditors.forEach(name => {
+        const chip = document.createElement('span');
+        chip.className = 'chip';
+        const text = document.createElement('span');
+        text.className = 'chip-name';
+        text.textContent = name;
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'chip-remove';
+        btn.setAttribute('aria-label', `ลบ ${name}`);
+        btn.textContent = '✕';
+        btn.addEventListener('click', () => {
+            selectedCreditors.delete(name);
+            const allChecks = Array.from(document.querySelectorAll('.creditor-checkbox'));
+            const match = allChecks.find(c => c.dataset.name === name);
+            if (match) match.checked = false;
+            updateSelectedChips();
+            updateDashboard({ skipDateSummary: true });
+        });
+        chip.appendChild(text);
+        chip.appendChild(btn);
+        container.appendChild(chip);
+    });
+}
+
+function openCreditorDropdown() {
+    const dd = document.getElementById('creditorDropdown');
+    if (dd) dd.hidden = false;
+    updateHeaderSpacing();
+}
+
+function closeCreditorDropdown() {
+    const dd = document.getElementById('creditorDropdown');
+    if (dd) dd.hidden = true;
+    updateHeaderSpacing();
+}
+
+function updateHeaderSpacing() {
+    const panels = [document.getElementById('creditorDropdown'), document.getElementById('advFilterPanel')].filter(Boolean);
+    const topNav = document.querySelector('.top-nav');
+    if (!topNav) return;
+    window.requestAnimationFrame(() => {
+        // compute tallest visible panel
+        let maxH = 0;
+        panels.forEach(p => {
+            if (p && !p.hidden) {
+                const h = p.offsetHeight || p.getBoundingClientRect().height || 0;
+                if (h > maxH) maxH = h;
+            }
+        });
+        if (maxH > 0) topNav.style.paddingBottom = (maxH + 18) + 'px';
+        else topNav.style.paddingBottom = '';
+    });
+}
+
 // Update Dashboard View based on selected filters
-const updateDashboard = () => {
+const updateDashboard = (opts = {}) => {
+    const skipDateSummary = opts && opts.skipDateSummary === true;
     const selectedPaymentStatus = paymentStatusFilter.value;
     const selectedCategory = categoryFilter.value;
     const selectedDay = dayFilter.value;
     const selectedMonth = monthFilter.value;
     const selectedYear = yearFilter.value;
+    const creditorVal = document.getElementById('creditorFilter')?.value.toLowerCase() || '';
 
     // Filter data
     currentFilteredData = allData.filter(item => {
@@ -494,7 +767,13 @@ const updateDashboard = () => {
         let matchDay = selectedDay === 'all' || (item.dayDue && parseInt(item.dayDue) === parseInt(selectedDay));
         let matchMonth = selectedMonth === 'all' || (item.monthDue && item.monthDue.toString() === selectedMonth);
         let matchYear = selectedYear === 'all' || (item.yearDue && parseInt(item.yearDue) === parseInt(selectedYear));
-        return matchPaymentStatus && matchCategory && matchDay && matchMonth && matchYear;
+        let matchCreditor;
+        if (selectedCreditors && selectedCreditors.size > 0) {
+            matchCreditor = selectedCreditors.has(item.creditor);
+        } else {
+            matchCreditor = creditorVal === '' || (item.creditor && item.creditor.toLowerCase().includes(creditorVal));
+        }
+        return matchPaymentStatus && matchCategory && matchDay && matchMonth && matchYear && matchCreditor;
     });
 
     // Calculate Summary numbers
@@ -591,8 +870,8 @@ const updateDashboard = () => {
     barChart.data.datasets[0].statusData = sortedCreditors.map(item => Array.from(item[1].statuses).join(', '));
     barChart.update();
 
-    // Update Date Summary Section
-    updateDateSummary();
+    // Update Date Summary Section (skip when searching per user request)
+    if (!skipDateSummary) updateDateSummary();
 };
 
 // ==========================================
@@ -609,6 +888,13 @@ const loadMockData = () => {
             { creditor: "ผู้รับเหมา กริช", amount: 12000, status: "เกินกำหนด", paymentStatus: "ยกเลิก", category: "รายสัปดาห์", monthDue: "มิ.ย.", yearDue: new Date().getFullYear() },
             { creditor: "สมปอง เซอร์วิส", amount: 7000, status: "ตรงดิว", paymentStatus: "ตัดเช็คผ่าน", category: "เจ้าหนี้รายเดือน", monthDue: "พ.ค.", yearDue: new Date().getFullYear() }
         ];
+
+        // Populate creditor list for mock mode as well
+        const creditors = [...new Set(allData.map(item => item.creditor))].filter(Boolean).sort();
+        const datalist = document.getElementById('creditorList');
+        if (datalist) datalist.innerHTML = creditors.map(c => `<option value="${c}">`).join('');
+        creditorData = creditors;
+        renderCreditorDropdown(creditors);
 
         loading.classList.add('hidden');
         updateDashboard();
@@ -628,6 +914,8 @@ const updateDateSummary = () => {
     const payDocYearVal = document.getElementById('payDocYearFilter')?.value || 'all';
 
     // Filter from ALL data (independent from top filters) by paymentStatus + payDoc month/year
+    // NOTE: intentionally do NOT apply the global creditor search selection here —
+    // the date-summary is kept independent per user request.
     const filteredForPayDoc = allData.filter(item => {
         const matchStatus = payDocStatusVal === 'all' || (item.paymentStatus && item.paymentStatus.toString().includes(payDocStatusVal));
         const matchMonth = payDocMonthVal === 'all' || (item.payDocMonth && item.payDocMonth === payDocMonthVal);
@@ -719,9 +1007,6 @@ const updateDateSummary = () => {
                 <button class="date-action-view" data-date-key="${dateKey}">
                     <i class='bx bx-show'></i> ดูข้อมูลเพิ่มเติม
                 </button>
-                <button class="date-action-pay" data-date-key="${dateKey}">
-                    <i class='bx bx-file'></i> ทำเอกสารจ่าย
-                </button>
             </div>
         `;
         grid.appendChild(card);
@@ -729,13 +1014,6 @@ const updateDateSummary = () => {
 
     // Attach event listeners to the new buttons
     grid.querySelectorAll('.date-action-view').forEach(btn => {
-        btn.addEventListener('click', () => {
-            const dateKey = btn.getAttribute('data-date-key');
-            openDateDetailModal(dateKey);
-        });
-    });
-
-    grid.querySelectorAll('.date-action-pay').forEach(btn => {
         btn.addEventListener('click', () => {
             const dateKey = btn.getAttribute('data-date-key');
             openDateDetailModal(dateKey);

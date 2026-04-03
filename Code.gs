@@ -103,9 +103,9 @@ function doGet(e) {
         }
 
         jsonData.push({
-            creditor: row[1].trim(),
+            creditor: row[3].trim(),
             description: row[2].trim(),
-            docNo: row[3].trim(),
+            docNo: row[1].trim(),
             amount: amount,
             paymentStatus: row[9].trim(),
             category: row[12].trim(),

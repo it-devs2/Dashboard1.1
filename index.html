@@ -25,6 +25,24 @@
             </div>
             
             <div class="filter-section">
+                <!-- Search first (multi-select chips + input) -->
+                <div class="filter-group header-search">
+                    <label for="creditorFilter">ชื่อเจ้าหนี้</label>
+                    <div class="search-box" role="combobox" aria-haspopup="listbox" aria-expanded="false">
+                        <span class="search-icon"><i class='bx bx-search'></i></span>
+                        <div id="selectedChips" class="selected-chips" hidden></div>
+                        <input type="text" id="creditorFilter" class="search-input" autocomplete="off" placeholder="ค้นหาชื่อเจ้าหนี้...">
+                        <button type="button" class="search-clear" aria-label="ล้างการค้นหา" hidden>✕</button>
+                    </div>
+                    <div id="creditorDropdown" class="creditor-dropdown" hidden>
+                        <div class="creditor-dropdown-header">
+                            <strong>เลือกเจ้าหนี้</strong>
+                            <button type="button" class="clear-selection-btn">ล้าง</button>
+                        </div>
+                        <div id="creditorListPanel" class="creditor-list"></div>
+                    </div>
+                </div>
+                <!-- Status comes after search -->
                 <div class="filter-group">
                     <label for="paymentStatusFilter">สถานะ</label>
                     <select id="paymentStatusFilter">
@@ -86,6 +104,7 @@
                 <button id="refreshBtn" class="premium-btn"><i class='bx bx-refresh'></i> โหลดใหม่</button>
             </div>
         </header>
+
 
 
         <main class="main-content">
@@ -259,11 +278,11 @@
             <h2>วิธีการเชื่อมต่อ Google Sheets</h2>
             <ol>
                 <li>เปิดไฟล์ Google Sheets ของคุณ</li>
-                <li>ไปที่ <b>ส่วนขยาย (Extensions) > Apps Script</b></li>
+                <li>ไปที่ <b>ส่วนขยาย (Extensions) &gt; Apps Script</b></li>
                 <li>คลิกไอคอนเครื่องหมาย <b>+</b> (เพิ่มไฟล์) ตรงเมนูซ้ายมือ เลือก <b>สคริปต์ (Script)</b> แล้วตั้งชื่อไฟล์ว่า <code>DashboardAPI</code></li>
                 <li>นำเนื้อหาจากไฟล์ <b style="color:var(--accent-primary)">Code.gs</b> ที่ผมเขียนให้ <b>ไปวางในไฟล์ใหม่ที่เพิ่งสร้างนี้ได้เลยครับ (ห้ามลบไฟล์เก่าเด็ดขาด)</b></li>
                 <li>แก้ไขชื่อ Sheet ในโค้ด <code>const sheetName = 'Sheet1';</code> ให้ตรงกับชื่อ Sheet ของคุณ (เช่น <code>'เจ้าหนี้อื่นๆ-รถเจาะไทย'</code>)</li>
-                <li>คลิก <b>การทำให้ใช้งานได้ (Deploy) > การทำให้ใช้งานได้รายการใหม่ (New deployment)</b></li>
+                <li>คลิก <b>การทำให้ใช้งานได้ (Deploy) &gt; การทำให้ใช้งานได้รายการใหม่ (New deployment)</b></li>
                 <li>คลิกรูปเฟือง และเลือกประเภท <b>"เว็บแอป" (Web App)</b></li>
                 <li>การเข้าถึงให้สิทธิ์: เลือก <b>"ทุกคน" (Anyone)</b> เท่านั้น</li>
                 <li>คลิก การทำให้ใช้งานได้ (Deploy) อนุมัติสิทธิ์ และคัดลอก "URL ของเว็บแอป"</li>
