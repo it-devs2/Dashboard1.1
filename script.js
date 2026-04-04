@@ -167,7 +167,7 @@ function populateGroupedDetailsTable(items = []) {
 
     const sortedGroups = Object.entries(groups)
         .map(([name, data]) => ({ name, ...data }))
-        .sort((a, b) => b.total - a.total);
+        .sort((a, b) => (b.total - a.total) || (b.count - a.count));
 
     let grandTotal = 0;
     sortedGroups.forEach(g => {
@@ -224,9 +224,27 @@ function populateDetailsTable(items = []) {
     detailsTableBody.innerHTML = '';
     detailsTableFooter.innerHTML = '';
 
-    // Sort items by amount (descending: largest first)
+    // Sort items by date (ascending: earliest first), then by amount (descending)
     if (items && items.length > 0) {
-        items.sort((a, b) => (Number(b.amount) || 0) - (Number(a.amount) || 0));
+        items.sort((a, b) => {
+            // First sort by year (ascending)
+            const yearA = parseInt(a.yearDue) || 9999;
+            const yearB = parseInt(b.yearDue) || 9999;
+            if (yearA !== yearB) return yearA - yearB;
+
+            // Sort by month (ascending)
+            const monthA = monthMap[a.monthDue] || 99;
+            const monthB = monthMap[b.monthDue] || 99;
+            if (monthA !== monthB) return monthA - monthB;
+
+            // Sort by day (ascending)
+            const dayA = parseInt(a.dayDue) || 99;
+            const dayB = parseInt(b.dayDue) || 99;
+            if (dayA !== dayB) return dayA - dayB;
+
+            // If date is equal, sort by amount (descending)
+            return (Number(b.amount) || 0) - (Number(a.amount) || 0);
+        });
     }
 
     let totalSum = 0;
@@ -291,7 +309,7 @@ function renderGroupSummary(items = []) {
     });
 
     const arr = Object.entries(groups).map(([name, o]) => ({ name, total: o.total, count: o.count, items: o.items }));
-    arr.sort((a, b) => b.total - a.total);
+    arr.sort((a, b) => (b.total - a.total) || (b.count - a.count));
 
     // Also render a print-friendly summary table (used for PDF / first page)
     renderPrintGroupTable(arr);
@@ -1314,7 +1332,25 @@ const openDateDetailModal = (dateKey) => {
         const year = item.payDocYear || '';
         const itemDateKey = [day, month, year].filter(Boolean).join(' ') || 'ไม่ระบุวันที่';
         return matchStatus && itemDateKey === dateKey;
-    }).sort((a, b) => (Number(b.amount) || 0) - (Number(a.amount) || 0));
+    }).sort((a, b) => {
+        // Sort by year (ascending)
+        const yearA = parseInt(a.yearDue) || 9999;
+        const yearB = parseInt(b.yearDue) || 9999;
+        if (yearA !== yearB) return yearA - yearB;
+
+        // Sort by month (ascending)
+        const monthA = monthMap[a.monthDue] || 99;
+        const monthB = monthMap[b.monthDue] || 99;
+        if (monthA !== monthB) return monthA - monthB;
+
+        // Sort by day (ascending)
+        const dayA = parseInt(a.dayDue) || 99;
+        const dayB = parseInt(b.dayDue) || 99;
+        if (dayA !== dayB) return dayA - dayB;
+
+        // If date is equal, sort by amount (descending)
+        return (Number(b.amount) || 0) - (Number(a.amount) || 0);
+    });
 
     tbody.innerHTML = '';
     tfoot.innerHTML = '';

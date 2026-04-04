@@ -1234,7 +1234,8 @@ select option {
 
 .date-card-top {
     display: flex;
-    flex-direction: column; /* Force stack to prevent overlap */
+    flex-direction: column;
+    /* Force stack to prevent overlap */
     gap: 12px;
     margin-bottom: 4px;
 }
