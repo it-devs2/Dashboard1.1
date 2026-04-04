@@ -1739,6 +1739,7 @@ select option {
     position: relative;
     padding-bottom: 16px;
     margin-bottom: 24px;
+    padding-right: 50px;
     font-size: 22px;
     background: linear-gradient(90deg, #a78bfa, #60a5fa);
     -webkit-background-clip: text;
@@ -1843,8 +1844,10 @@ select option {
 /* Details modal controls */
 .details-controls {
     display: flex;
-    justify-content: flex-end;
-    margin-bottom: 12px;
+    justify-content: flex-start;
+    gap: 12px;
+    margin-bottom: 18px;
+    padding-top: 4px;
 }
 
 .details-controls .view-toggle {
@@ -1961,6 +1964,7 @@ select option {
     flex: 1 1 auto;
     display: -webkit-box;
     -webkit-line-clamp: 2;
+    line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -2368,21 +2372,24 @@ select option {
 }
 
 .total-label {
-    text-align: right;
+    text-align: left;
     font-weight: 700;
     color: var(--text-main);
     text-transform: uppercase;
     letter-spacing: 1px;
-    padding: 15px !important;
+    padding: 6px 12px !important;
 }
 
 .total-amount-val {
     text-align: right;
     color: var(--accent-primary);
-    font-size: 1.1em;
+    font-size: 15px;
+    /* Match body rows */
     font-weight: 800;
     white-space: nowrap;
-    padding: 15px !important;
+    padding: 6px 12px !important;
+    font-variant-numeric: tabular-nums;
+    font-family: inherit;
 }
 
 @media (max-width: 580px) {
@@ -2549,18 +2556,26 @@ select option {
     /* ============================================
        หัวรายงานแบบ Luxury (Flexbox - ไม่ชนกัน)
        ============================================ */
+    .print-premium-bar {
+        display: block !important;
+        height: 8pt !important;
+        background: linear-gradient(90deg, #4f46e5, #818cf8) !important;
+        width: 100% !important;
+        margin: 0 !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
     .print-branding-header {
         display: flex !important;
-        flex-direction: column !important;
-        justify-content: center !important;
+        flex-direction: row !important;
+        justify-content: space-between !important;
         align-items: center !important;
-        gap: 2px !important;
+        gap: 0 !important;
         width: 100% !important;
-        padding-bottom: 4px !important;
-        margin-bottom: 2px !important;
-        margin-top: 0 !important;
-        border-bottom: 1.5pt solid #1e293b !important;
-        /* Formal dark line */
+        padding: 12pt 0 8pt 0 !important;
+        margin-bottom: 4pt !important;
+        border-bottom: 1px solid #e2e8f0 !important;
         visibility: visible !important;
         position: relative !important;
         -webkit-print-color-adjust: exact;
@@ -2570,76 +2585,102 @@ select option {
     .branding-main {
         display: flex !important;
         align-items: center !important;
-        justify-content: center !important;
-        width: 100% !important;
+        justify-content: flex-start !important;
+        flex: 1 !important;
     }
 
     .branding-logo {
         display: flex !important;
         align-items: center !important;
-        gap: 8px !important;
-        justify-content: center !important;
+        gap: 10pt !important;
     }
 
     .branding-logo i {
-        font-size: 16pt !important;
-        color: #5b51d8 !important;
-        visibility: visible !important;
+        font-size: 24pt !important;
+        color: #4f46e5 !important;
         margin: 0 !important;
-        line-height: 1 !important;
     }
 
     .branding-logo h1 {
-        font-size: 13pt !important;
+        font-size: 14pt !important;
         font-weight: 800 !important;
-        color: #5b51d8 !important;
+        color: #1a1a2e !important;
         margin: 0 !important;
-        padding: 0 !important;
-        line-height: 1 !important;
-        letter-spacing: 1.5px !important;
-        visibility: visible !important;
+        letter-spacing: 0.5pt !important;
+        line-height: 1.2 !important;
+        text-transform: uppercase !important;
+    }
+
+    .branding-logo h1 .report-badge {
+        display: block !important;
+        font-size: 9pt !important;
+        font-weight: 500 !important;
+        color: #64748b !important;
+        text-transform: none !important;
+        letter-spacing: 0 !important;
+        margin-top: 2pt !important;
     }
 
     .branding-meta {
         display: flex !important;
-        flex-direction: row !important;
-        justify-content: center !important;
-        align-items: center !important;
-        gap: 20px !important;
-        width: 100% !important;
-        margin-top: 0 !important;
-        margin-bottom: 0 !important;
-        visibility: visible !important;
-        position: static !important;
-        /* Remove absolute positioning for cleaner flow */
+        flex-direction: column !important;
+        align-items: flex-end !important;
+        gap: 3pt !important;
+        flex-shrink: 0 !important;
     }
 
-    .branding-meta p {
-        font-size: 8pt !important;
+    .branding-meta .meta-item {
+        display: flex !important;
+        gap: 6pt !important;
+        font-size: 8.5pt !important;
+    }
+
+    .branding-meta .label {
         color: #64748b !important;
-        margin: 0 !important;
-        padding: 0 !important;
         font-weight: 500 !important;
-        line-height: 1.1 !important;
-        visibility: visible !important;
     }
 
-    /* ชื่อประเภทรายงาน */
-    .print-report-header-only {
+    .branding-meta .value {
+        color: #1a1a2e !important;
+        font-weight: 700 !important;
+        font-family: monospace !important;
+    }
+
+    .print-report-title-label {
         display: block !important;
         visibility: visible !important;
-        color: #0f172a !important;
+        color: #1e293b !important;
         text-align: center !important;
         width: 100% !important;
-        margin-top: 0 !important;
-        margin-bottom: 2px !important;
+        margin-top: 12pt !important;
+        margin-bottom: 18pt !important;
         font-family: 'Prompt', sans-serif !important;
-        font-size: 14pt !important;
+        font-size: 18pt !important;
         font-weight: 700 !important;
-        line-height: 1.1 !important;
-        border-left: none !important;
-        border-bottom: 2px solid #5b51d8 !important;
-        padding: 0 0 2px 0 !important;
+        letter-spacing: 0.5pt !important;
+        padding-bottom: 8pt !important;
+        border-bottom: 2pt solid #1e293b !important;
+    }
+
+
+
+    .data-table th {
+        font-size: 11.5pt !important;
+        padding: 10pt 6pt !important;
+        background-color: #f8fafc !important;
+        color: #1a1a2e !important;
+        border: 1pt solid #cbd5e1 !important;
+    }
+
+    .data-table td {
+        font-size: 11pt !important;
+        padding: 8pt 6pt !important;
+        border: 1pt solid #e2e8f0 !important;
+        line-height: 1.4 !important;
+    }
+
+    .data-table tr {
+        page-break-inside: avoid !important;
     }
 
     /* ============================================
@@ -2668,6 +2709,7 @@ select option {
         font-family: 'Prompt', sans-serif !important;
         margin: 0 !important;
         border: 2px solid #5b51d8 !important;
+        font-size: 11pt !important;
     }
 
     /* กำหนดความกว้างแต่ละคอลัมน์ให้พอดี A4 แนวตั้ง (6 คอลัมน์) */
@@ -2711,7 +2753,7 @@ select option {
         padding: 12px 8px !important;
         font-size: 10pt !important;
         font-weight: 800 !important;
-        text-align: center !important;
+        text-align: left !important;
         vertical-align: middle !important;
         position: static !important;
         /* CRITICAL: Remove sticky */
@@ -2721,6 +2763,14 @@ select option {
         -webkit-print-color-adjust: exact;
         print-color-adjust: exact;
     }
+
+    /* ชิดขอบสำหรับคอลัมน์แรก */
+    .data-table th:first-child,
+    .data-table td:first-child {
+        text-align: left !important;
+        padding-left: 2pt !important;
+    }
+
 
     .data-table td {
         border: 1px solid #cbd5e1 !important;
@@ -2787,10 +2837,18 @@ select option {
     .total-row-summary td,
     .data-table tfoot td {
         vertical-align: middle !important;
-        text-align: right !important;
     }
 
-    .data-table td:nth-child(1),
+    .total-label {
+        text-align: left !important;
+        padding-left: 12px !important;
+    }
+
+    .total-amount-val {
+        text-align: right !important;
+        padding-right: 12px !important;
+    }
+
     .data-table td:nth-child(4),
     .data-table td:nth-child(5) {
         text-align: center !important;
@@ -3155,6 +3213,7 @@ select option {
         font-size: 8pt !important;
         line-height: 1 !important;
         -webkit-line-clamp: 1;
+        line-clamp: 1;
     }
 
     .group-card .group-card-meta {

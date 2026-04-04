@@ -140,7 +140,7 @@ function populateGroupedDetailsTable(items = []) {
         detailsTableHeader.innerHTML = `
             <tr>
                 <th style="text-align: left; width: 45%;">ชื่อเจ้าหนี้ (Creditor Name)</th>
-                <th style="text-align: center; width: 25%;">จำนวนรายการ (Count)</th>
+                <th style="text-align: left !important; width: 25%;">จำนวนรายการ (Count)</th>
                 <th style="text-align: right; width: 30%;">ยอดเงินรวม (Sum Total)</th>
             </tr>
         `;
@@ -174,9 +174,9 @@ function populateGroupedDetailsTable(items = []) {
         const tr = document.createElement('tr');
         tr.className = 'summary-row-clickable';
         tr.innerHTML = `
-            <td style="font-weight: 700; color: #fff;">${g.name}</td>
+            <td style="text-align: left; font-weight: 700; color: #fff;">${g.name}</td>
             <td style="text-align: center; color: var(--text-muted);">${g.count} รายการ</td>
-            <td style="text-align: right; color: var(--color-total); font-weight: 800; font-size: 15px;">${formatCurrency(g.total)}</td>
+            <td style="text-align: right; color: var(--color-total); font-weight: 800; font-size: 15px; font-variant-numeric: tabular-nums;">${formatCurrency(g.total)}</td>
         `;
         // Drill-down: Click row to see details for this creditor
         tr.addEventListener('click', () => {
@@ -1372,9 +1372,13 @@ const exportDatePDF = () => {
 
     const printDocId = document.getElementById('printDocIdGlobal');
     const printIssueDate = document.getElementById('printIssueDateGlobal');
+    const printDocIdDate = document.getElementById('printDocIdDate');
+    const printIssueDateDate = document.getElementById('printIssueDateDate');
 
     if (printDocId) printDocId.innerText = docId;
     if (printIssueDate) printIssueDate.innerText = dateStr;
+    if (printDocIdDate) printDocIdDate.innerText = docId;
+    if (printIssueDateDate) printIssueDateDate.innerText = dateStr;
 
     // Use native print for better multi-page support and Thai fonts
     window.print();
@@ -1393,9 +1397,20 @@ const exportToPDF = () => {
     // อัปเดตข้อมูลลงในธาตุ HTML สำหรับหน้าพิมพ์
     const printDocId = document.getElementById('printDocIdGlobal');
     const printIssueDate = document.getElementById('printIssueDateGlobal');
+    const printDocIdDetails = document.getElementById('printDocIdDetails');
+    const printIssueDateDetails = document.getElementById('printIssueDateDetails');
+    const localHeader = document.getElementById('printReportHeaderLocal');
 
     if (printDocId) printDocId.innerText = docId;
     if (printIssueDate) printIssueDate.innerText = dateStr;
+    if (printDocIdDetails) printDocIdDetails.innerText = docId;
+    if (printIssueDateDetails) printIssueDateDetails.innerText = dateStr;
+    
+    // Sync report type to local header
+    const globalHeader = document.getElementById('printReportHeaderGlobal');
+    if (globalHeader && localHeader) {
+        localHeader.innerText = globalHeader.innerText;
+    }
 
     // Native print is generally more reliable for multi-page reports
     window.print();
