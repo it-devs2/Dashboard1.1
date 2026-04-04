@@ -14,6 +14,7 @@ let barChart;
 // Creditor dropdown data + selection state
 let creditorData = [];
 let selectedCreditors = new Set();
+let currentModalDate = ''; // Store date for PDF report header
 
 // Thai month mapping for sorting and comparison
 const monthMap = {
@@ -222,6 +223,11 @@ function populateDetailsTable(items = []) {
 
     detailsTableBody.innerHTML = '';
     detailsTableFooter.innerHTML = '';
+
+    // Sort items by amount (descending: largest first)
+    if (items && items.length > 0) {
+        items.sort((a, b) => (Number(b.amount) || 0) - (Number(a.amount) || 0));
+    }
 
     let totalSum = 0;
     if (!items || items.length === 0) {
@@ -1264,18 +1270,18 @@ const updateDateSummary = () => {
         card.className = 'date-card';
         card.style.animationDelay = `${index * 0.06}s`;
         card.innerHTML = `
-            <div class="date-card-top">
-                <div class="date-card-date">
-                    <div class="date-icon"><i class='bx bx-calendar'></i></div>
-                    <div class="date-text">
-                        <span class="day-label">${dateKey}</span>
-                        <span class="item-count">${group.items.length} รายการ</span>
-                    </div>
+            <div class="date-card-header">
+                <div class="date-icon"><i class='bx bx-calendar'></i></div>
+                <div class="date-header-text">
+                    <span class="day-label">${dateKey}</span>
+                    <span class="item-count">${group.items.length} รายการ</span>
                 </div>
+            </div>
+            <div class="date-card-body">
                 <div class="date-card-amount">${formatCurrency(group.total)}</div>
             </div>
-            <div class="date-status-badges">${statusBadgesHtml}</div>
-            <div class="date-card-actions">
+            <div class="date-card-footer">
+                <div class="date-status-badges">${statusBadgesHtml}</div>
                 <button class="date-action-view" data-date-key="${dateKey}">
                     <i class='bx bx-show'></i> ดูข้อมูลเพิ่มเติม
                 </button>
@@ -1361,6 +1367,7 @@ const openDateDetailModal = (dateKey) => {
     const printHeader = document.getElementById('printReportHeaderGlobal');
     if (printHeader) printHeader.innerText = `เอกสารจ่ายประจำวันที่: ${dateKey}`;
 
+    currentModalDate = dateKey;
     modal.classList.remove('hidden');
 };
 
@@ -1368,7 +1375,19 @@ const openDateDetailModal = (dateKey) => {
 const exportDatePDF = () => {
     const now = new Date();
     const docId = `PAY-${now.getTime().toString().slice(-6)}`;
-    const dateStr = formatThaiDateTime(now);
+    
+    // Create timestamp string: combine box date with current time
+    let dateStr = currentModalDate || formatThaiDateTime(now);
+    
+    // Append current time to the box date for a complete "Issued At" metadata
+    if (currentModalDate) {
+        const hh = String(now.getHours()).padStart(2, '0');
+        const mm = String(now.getMinutes()).padStart(2, '0');
+        const ss = String(now.getSeconds()).padStart(2, '0');
+        // If the dateKey has year in 2026 format, convert to 2569 (BE) if intended
+        // Here we just keep the box date as is and add the time
+        dateStr = `${currentModalDate} ${hh}:${mm}:${ss}`;
+    }
 
     const printDocId = document.getElementById('printDocIdGlobal');
     const printIssueDate = document.getElementById('printIssueDateGlobal');
